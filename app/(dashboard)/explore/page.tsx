@@ -3,6 +3,7 @@
 import { useState, useCallback, lazy, Suspense } from 'react'
 import { Search, SlidersHorizontal, ChevronRight, ChevronDown, Clock, TrendingUp, Camera, X } from 'lucide-react'
 import Link from 'next/link'
+import PhotographerPopover from '@/components/map/PhotographerPopover'
 
 // Dynamic import to avoid SSR (Leaflet needs window)
 const ExploreMap = lazy(() => import('@/components/map/ExploreMap'))
@@ -51,11 +52,14 @@ export default function ExplorePage() {
   const [showRouteSheet, setShowRouteSheet] = useState(false)
   const [routeTab, setRouteTab] = useState<'past' | 'popular'>('past')
   const [search, setSearch] = useState('')
+  const [selectedPhotographer, setSelectedPhotographer] = useState<{
+    id: string; x: number; y: number
+  } | null>(null)
 
   const activeRoute = ROUTES.find((r) => r.id === activeRouteId)!
 
-  const handlePhotographerClick = useCallback((id: string) => {
-    console.log('photographer clicked:', id)
+  const handlePhotographerClick = useCallback((id: string, x: number, y: number) => {
+    setSelectedPhotographer({ id, x, y })
   }, [])
 
   return (
@@ -102,6 +106,18 @@ export default function ExplorePage() {
           </span>
           <ChevronDown size={13} className="text-gray-400 flex-none" />
         </button>
+      </div>
+
+      {/* ── Photographer popover (anchored to marker screen position) ── */}
+      <div className="absolute inset-0 z-40 pointer-events-none">
+        <div className="pointer-events-auto">
+          <PhotographerPopover
+            photographerId={selectedPhotographer?.id ?? null}
+            anchorX={selectedPhotographer?.x ?? 0}
+            anchorY={selectedPhotographer?.y ?? 0}
+            onClose={() => setSelectedPhotographer(null)}
+          />
+        </div>
       </div>
 
       {/* ── Leaflet Map ── */}

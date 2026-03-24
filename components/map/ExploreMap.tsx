@@ -93,7 +93,8 @@ async function fetchRoadGeometry(
 
 interface Props {
   activeRouteId: string
-  onPhotographerClick: (id: string) => void
+  /** Called with photographer id + marker pixel coords relative to the map container */
+  onPhotographerClick: (id: string, x: number, y: number) => void
 }
 
 export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props) {
@@ -257,7 +258,11 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
         })
         const marker = L.marker([p.lat, p.lng], { icon })
           .addTo(map)
-          .on('click', () => onPhotographerClick(p.id))
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .on('click', (e: any) => {
+            const pt = map.latLngToContainerPoint(e.latlng)
+            onPhotographerClick(p.id, pt.x, pt.y)
+          })
         marker.bindTooltip(
           L.tooltip({ permanent: false, direction: 'top', offset: [0, -52], className: 'photographer-tooltip' })
             .setContent(`<strong>${p.name}</strong><br/>${p.photos} fotos`)
