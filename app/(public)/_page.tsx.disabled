@@ -1,0 +1,7 @@
+// This route group exists for organizational purposes.
+// The root "/" route is handled by app/page.tsx
+import { notFound } from 'next/navigation'
+
+export default function PublicPage() {
+  notFound()
+}
