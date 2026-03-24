@@ -1,239 +1,126 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { buttonVariants } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import { ChevronRight, Search, Camera, MapPin } from 'lucide-react'
 
-const features = [
+const slides = [
   {
-    icon: '🗺️',
-    title: 'Busca por Rota GPS',
+    icon: Search,
+    title: 'Encontre suas fotos',
     description:
-      'Selecione uma rota ou evento e veja todas as fotos tiradas naquele dia e local.',
+      'Use o mapa interativo para descobrir fotógrafos e fotos do seu percurso em corridas, pedais e muito mais.',
+    image:
+      'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800&q=80',
   },
   {
-    icon: '🤳',
-    title: 'Busca por Imagem',
+    icon: Camera,
+    title: 'Busque pelo percurso',
     description:
-      'Envie uma foto sua e encontre-se automaticamente em galerias de provas e pedaladas.',
+      'Selecione a rota do seu evento no mapa e veja todas as fotos tiradas ao longo do trajeto.',
+    image:
+      'https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=800&q=80',
   },
   {
-    icon: '🖼️',
-    title: 'Galeria com Preview',
+    icon: MapPin,
+    title: 'Compre com facilidade',
     description:
-      'Navegue antes de comprar. Download em alta resolução liberado após pagamento.',
-  },
-  {
-    icon: '📷',
-    title: 'CMS para Fotógrafos',
-    description:
-      'Upload, tag por GPS, evento e data. Defina preço e publique sua vitrine em minutos.',
-  },
-  {
-    icon: '⚡',
-    title: 'Pagamento via PIX',
-    description:
-      'Checkout instantâneo. Split automático entre fotógrafo e plataforma.',
+      'Encontrou sua foto? Compre em segundos via Pix e faça o download em alta resolução.',
+    image:
+      'https://images.unsplash.com/photo-1461897104016-0b3b00cc81ee?w=800&q=80',
   },
 ]
 
-const buyerSteps = [
-  { step: '1', text: 'Busque pela rota ou evento que você participou' },
-  { step: '2', text: "Encontre-se nas fotos com marcação d'água" },
-  { step: '3', text: 'Pague via PIX e baixe em alta resolução' },
-]
+export default function OnboardingPage() {
+  const [current, setCurrent] = useState(0)
 
-const photographerSteps = [
-  { step: '1', text: 'Crie sua conta e configure seu perfil e chave PIX' },
-  { step: '2', text: 'Faça upload das fotos com tag de GPS e evento' },
-  { step: '3', text: 'Publique e receba automaticamente por cada venda' },
-]
+  const next = () => {
+    if (current < slides.length - 1) setCurrent(current + 1)
+  }
 
-export default function LandingPage() {
+  const skip = () => {
+    window.location.href = '/explore'
+  }
+
+  const slide = slides[current]
+  const Icon = slide.icon
+  const isLast = current === slides.length - 1
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <span className="font-medium text-xl text-foreground">PicTrail</span>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground">
-              Entrar
-            </Link>
-            <Link href="/login" className={cn(buttonVariants({ size: 'sm' }))}>
-              Começar grátis
-            </Link>
-          </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 p-4">
+      <div className="w-full max-w-sm bg-white rounded-3xl overflow-hidden shadow-2xl">
+        {/* Hero image */}
+        <div className="relative h-64 overflow-hidden">
+          <img
+            src={slide.image}
+            alt={slide.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/30" />
+          <button
+            onClick={skip}
+            className="absolute top-4 right-4 bg-black/40 text-white text-sm font-medium px-4 py-1.5 rounded-full backdrop-blur-sm"
+          >
+            Pular
+          </button>
         </div>
-      </header>
 
-      <section className="max-w-6xl mx-auto px-4 py-24 text-center space-y-6">
-        <Badge variant="secondary" className="text-xs">
-          Marketplace de fotos esportivas do RS
-        </Badge>
-        <h1 className="text-4xl md:text-6xl font-medium text-foreground leading-tight max-w-4xl mx-auto">
-          Sua foto na Serra do Rio do Rastro existe. Agora você consegue encontrá-la.
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Encontre fotos suas em provas, pedaladas e rotas cênicas — por GPS, data ou
-          reconhecimento facial. Compre com PIX em um clique.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/login" className={cn(buttonVariants({ size: 'lg' }))}>
-            Começar grátis — 14 dias PRO
-          </Link>
-          <Link href="/explore" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}>
-            Ver galerias
-          </Link>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Sem cartão de crédito. Trial de 14 dias com todos os recursos PRO.
-        </p>
-      </section>
-
-      <section className="bg-muted/40 py-20">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-medium text-foreground">Tudo que você precisa</h2>
-            <p className="text-muted-foreground mt-2">Do clique do fotógrafo ao download do atleta.</p>
+        {/* Content */}
+        <div className="px-6 pt-5 pb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-9 h-9 rounded-xl bg-[#e8f5e9] flex items-center justify-center">
+              <Icon size={18} className="text-[#2D6A2D]" />
+            </div>
+            <span className="text-sm font-semibold text-[#2D6A2D]">
+              {current + 1} / {slides.length}
+            </span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((f) => (
-              <div key={f.title} className="bg-card border border-border rounded-xl p-6 space-y-3">
-                <span className="text-3xl">{f.icon}</span>
-                <h3 className="font-medium text-foreground">{f.title}</h3>
-                <p className="text-sm text-muted-foreground">{f.description}</p>
-              </div>
+
+          <h1 className="text-2xl font-bold text-gray-900 mb-2 leading-tight">
+            {slide.title}
+          </h1>
+
+          <p className="text-sm text-gray-500 leading-relaxed mb-6">
+            {slide.description}
+          </p>
+
+          <div className="flex gap-1.5 mb-6">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`h-2 rounded-full transition-all ${
+                  i === current ? 'w-6 bg-[#2D6A2D]' : 'w-2 bg-gray-200'
+                }`}
+              />
             ))}
           </div>
-        </div>
-      </section>
 
-      <section className="py-20">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-medium text-foreground">Como funciona</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div>
-              <h3 className="font-medium text-lg mb-6 text-foreground">Para atletas</h3>
-              <div className="space-y-4">
-                {buyerSteps.map((s) => (
-                  <div key={s.step} className="flex items-start gap-4">
-                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium shrink-0">
-                      {s.step}
-                    </div>
-                    <p className="text-muted-foreground text-sm pt-1">{s.text}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="font-medium text-lg mb-6 text-foreground">Para fotógrafos</h3>
-              <div className="space-y-4">
-                {photographerSteps.map((s) => (
-                  <div key={s.step} className="flex items-start gap-4">
-                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium shrink-0">
-                      {s.step}
-                    </div>
-                    <p className="text-muted-foreground text-sm pt-1">{s.text}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-muted/40 py-20">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-medium text-foreground">Planos simples</h2>
-            <p className="text-muted-foreground mt-2">Comece grátis, assine quando precisar de mais.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-card border border-border rounded-xl p-8 space-y-6">
-              <div>
-                <h3 className="text-xl font-medium">FREE</h3>
-                <p className="text-3xl font-medium mt-2">R$ 0</p>
-                <p className="text-muted-foreground text-sm">para sempre</p>
-              </div>
-              <ul className="space-y-3 text-sm text-muted-foreground">
-                {[
-                  'Busca por rota',
-                  "Preview com marca d'água",
-                  '1 compra avulsa por mês',
-                  'Sem reconhecimento facial',
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2">
-                    <span>✓</span> {item}
-                  </li>
-                ))}
-              </ul>
+          {isLast ? (
+            <div className="space-y-3">
+              <Link
+                href="/explore"
+                className="flex items-center justify-center gap-2 w-full bg-[#2D6A2D] text-white font-semibold py-4 rounded-2xl text-base"
+              >
+                Explorar fotos <ChevronRight size={18} />
+              </Link>
               <Link
                 href="/login"
-                className={cn(buttonVariants({ variant: 'outline' }), 'w-full justify-center')}
+                className="flex items-center justify-center w-full border-2 border-[#2D6A2D] text-[#2D6A2D] font-semibold py-4 rounded-2xl text-base"
               >
-                Criar conta grátis
+                Entrar / Criar conta
               </Link>
             </div>
-
-            <div className="bg-primary text-primary-foreground rounded-xl p-8 space-y-6">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-xl font-medium">PRO</h3>
-                  <Badge variant="secondary" className="text-xs">
-                    Popular
-                  </Badge>
-                </div>
-                <p className="text-3xl font-medium mt-2">R$ 29</p>
-                <p className="opacity-70 text-sm">por mês</p>
-              </div>
-              <ul className="space-y-3 text-sm opacity-90">
-                {[
-                  'Tudo do FREE',
-                  'Compras ilimitadas',
-                  'Reconhecimento facial',
-                  'Histórico de downloads',
-                  'Acesso antecipado a galerias',
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2">
-                    <span>✓</span> {item}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/login"
-                className={cn(buttonVariants({ variant: 'secondary' }), 'w-full justify-center')}
-              >
-                Começar trial de 14 dias
-              </Link>
-            </div>
-          </div>
+          ) : (
+            <button
+              onClick={next}
+              className="flex items-center justify-center gap-2 w-full bg-[#2D6A2D] text-white font-semibold py-4 rounded-2xl text-base"
+            >
+              Próximo <ChevronRight size={18} />
+            </button>
+          )}
         </div>
-      </section>
-
-      <footer className="border-t border-border py-12">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div>
-            <p className="font-medium text-foreground">PicTrail</p>
-            <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} PicTrail. Todos os direitos reservados.
-            </p>
-          </div>
-          <div className="flex gap-6 text-sm text-muted-foreground">
-            <Link href="/login" className="hover:text-foreground transition-colors">
-              Entrar
-            </Link>
-            <Link href="/explore" className="hover:text-foreground transition-colors">
-              Galerias
-            </Link>
-            <a href="mailto:contato@pictrail.com.br" className="hover:text-foreground transition-colors">
-              Contato
-            </a>
-          </div>
-        </div>
-      </footer>
+      </div>
     </div>
   )
 }

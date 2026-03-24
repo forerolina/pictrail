@@ -1,93 +1,156 @@
-import { auth } from '@/auth'
-import { db } from '@/lib/db'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { ArrowLeft, Bell, Upload, ShoppingBag, Eye } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
-export default async function PhotographerDashboardPage() {
-  const session = await auth()
-  if (!session?.user?.id) redirect('/login')
+const weekDays = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
+const barData = [20, 45, 30, 60, 280, 420, 380]
+const maxBar = Math.max(...barData)
 
-  const photographer = await db.photographer.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      galleries: {
-        include: { _count: { select: { photos: true } } },
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-      },
-    },
-  })
+const topPhotos = [
+  {
+    rank: 1,
+    image: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=200&q=80',
+    sales: 8,
+    views: 142,
+  },
+  {
+    rank: 2,
+    image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=200&q=80',
+    sales: 6,
+    views: 98,
+  },
+  {
+    rank: 3,
+    image: 'https://images.unsplash.com/photo-1461897104016-0b3b00cc81ee?w=200&q=80',
+    sales: 5,
+    views: 87,
+  },
+]
+
+export default function PhotographerDashboardPage() {
+  const router = useRouter()
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-medium text-foreground">Painel do Fotógrafo</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          Gerencie suas galerias e fotos.
-        </p>
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      {/* Green header */}
+      <div className="bg-[#2D6A2D] px-4 pt-12 pb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push('/profile')}
+              className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center"
+            >
+              <ArrowLeft size={18} className="text-white" />
+            </button>
+            <div>
+              <p className="text-white/70 text-xs font-medium">Fotógrafo</p>
+              <h1 className="text-xl font-bold text-white">Meu Dashboard</h1>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/photographer/notifications"
+              className="relative w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center"
+            >
+              <Bell size={18} className="text-white" />
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full text-[9px] text-white font-bold flex items-center justify-center">
+                3
+              </span>
+            </Link>
+            <Link
+              href="/photographer/upload"
+              className="flex items-center gap-1.5 bg-white text-[#2D6A2D] text-sm font-bold px-3 py-2 rounded-xl"
+            >
+              <Upload size={14} />
+              Upload
+            </Link>
+          </div>
+        </div>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="bg-white/15 rounded-xl p-3">
+            <p className="text-white/60 text-xs mb-1">Esta semana</p>
+            <p className="text-white font-black text-lg">R$ 1.764</p>
+            <p className="text-white/60 text-xs mt-0.5">+12% vs anterior</p>
+          </div>
+          <div className="bg-white/15 rounded-xl p-3">
+            <p className="text-white/60 text-xs mb-1">Vendas</p>
+            <p className="text-white font-black text-lg">59</p>
+            <p className="text-white/60 text-xs mt-0.5">esta semana</p>
+          </div>
+          <div className="bg-white/15 rounded-xl p-3">
+            <p className="text-white/60 text-xs mb-1">Fotos ativas</p>
+            <p className="text-white font-black text-lg">127</p>
+            <p className="text-white/60 text-xs mt-0.5">4 percursos</p>
+          </div>
+        </div>
       </div>
 
-      {!photographer ? (
-        <div className="rounded-lg border border-border bg-card p-8 text-center space-y-4">
-          <p className="text-muted-foreground">Você ainda não tem um perfil de fotógrafo.</p>
-          <p className="text-sm text-muted-foreground">
-            Entre em contato para cadastrar seu perfil e começar a vender suas fotos.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-lg border border-border bg-card p-6">
-              <p className="text-sm text-muted-foreground">Galerias</p>
-              <p className="text-3xl font-medium text-foreground mt-1">
-                {photographer.galleries.length}
-              </p>
-            </div>
-            <div className="rounded-lg border border-border bg-card p-6">
-              <p className="text-sm text-muted-foreground">Total de fotos</p>
-              <p className="text-3xl font-medium text-foreground mt-1">
-                {photographer.galleries.reduce((acc, g) => acc + g._count.photos, 0)}
-              </p>
-            </div>
-            <div className="rounded-lg border border-border bg-card p-6">
-              <p className="text-sm text-muted-foreground">Fotógrafo desde</p>
-              <p className="text-lg font-medium text-foreground mt-1">
-                {photographer.createdAt.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
-              </p>
+      <div className="flex-1 px-4 pt-4 space-y-4 pb-6">
+        {/* Revenue chart */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <p className="font-bold text-gray-900 flex items-center gap-1.5">
+              <span className="text-[#2D6A2D]">↗</span> Receita — 7 dias
+            </p>
+            <div className="flex gap-1">
+              <button className="text-xs font-semibold bg-[#2D6A2D] text-white px-2.5 py-1 rounded-lg">
+                R$
+              </button>
+              <button className="text-xs font-medium text-gray-500 px-2.5 py-1 rounded-lg border border-gray-200">
+                Qtd
+              </button>
             </div>
           </div>
-
-          <div>
-            <h2 className="text-lg font-medium text-foreground mb-4">Galerias recentes</h2>
-            {photographer.galleries.length === 0 ? (
-              <p className="text-muted-foreground text-sm">Nenhuma galeria ainda.</p>
-            ) : (
-              <div className="space-y-2">
-                {photographer.galleries.map((gallery) => (
-                  <div
-                    key={gallery.id}
-                    className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3"
-                  >
-                    <div>
-                      <p className="font-medium text-foreground text-sm">{gallery.routeName}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {gallery._count.photos} foto{gallery._count.photos !== 1 ? 's' : ''} •{' '}
-                        {gallery.date.toLocaleDateString('pt-BR')}
-                      </p>
-                    </div>
-                    <Link
-                      href={`/gallery/${gallery.id}`}
-                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      Ver →
-                    </Link>
-                  </div>
-                ))}
+          {/* Bar chart */}
+          <div className="flex items-end gap-1 h-24">
+            {weekDays.map((day, i) => (
+              <div key={day} className="flex-1 flex flex-col items-center gap-1">
+                <div
+                  className="w-full rounded-t-md bg-[#2D6A2D]"
+                  style={{ height: `${(barData[i] / maxBar) * 88}px`, minHeight: 2 }}
+                />
+                <span className="text-[10px] text-gray-400">{day}</span>
               </div>
-            )}
+            ))}
           </div>
         </div>
-      )}
+
+        {/* Top photos */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <p className="font-bold text-gray-900">🏆 Fotos mais vendidas</p>
+            <button className="text-sm font-semibold text-[#2D6A2D]">
+              Ver todas
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {topPhotos.map((p) => (
+              <div key={p.rank} className="relative">
+                <img
+                  src={p.image}
+                  alt={`#${p.rank}`}
+                  className="w-full h-24 object-cover rounded-xl"
+                />
+                <div className="absolute top-2 left-2 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center">
+                  <span className="text-white text-[10px] font-bold">#{p.rank}</span>
+                </div>
+                <div className="mt-1.5 flex items-center justify-around">
+                  <span className="flex items-center gap-0.5 text-xs text-gray-500">
+                    <ShoppingBag size={11} /> {p.sales}
+                  </span>
+                  <span className="flex items-center gap-0.5 text-xs text-gray-500">
+                    <Eye size={11} /> {p.views}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

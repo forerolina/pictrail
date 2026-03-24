@@ -1,48 +1,52 @@
-import Link from 'next/link'
-import { auth } from '@/auth'
+'use client'
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const session = await auth()
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { Map, Grid2x2, User } from 'lucide-react'
+
+const navItems = [
+  { href: '/explore', label: 'Mapa', icon: Map },
+  { href: '/photos', label: 'Fotos', icon: Grid2x2 },
+  { href: '/profile', label: 'Perfil', icon: User },
+]
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/explore" className="font-medium text-foreground text-lg">
-            PicTrail
-          </Link>
-          <nav className="flex items-center gap-6 text-sm">
-            <Link href="/explore" className="text-muted-foreground hover:text-foreground transition-colors">
-              Explorar
-            </Link>
-            {session ? (
-              <>
-                <Link href="/purchases" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Compras
-                </Link>
-                <Link href="/photographer/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Fotógrafo
-                </Link>
-                <Link href="/settings/billing" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Plano
-                </Link>
-              </>
-            ) : (
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Main content */}
+      <main className="flex-1 pb-20 max-w-lg mx-auto w-full">
+        {children}
+      </main>
+
+      {/* Bottom navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border">
+        <div className="max-w-lg mx-auto flex items-center justify-around h-16">
+          {navItems.map(({ href, label, icon: Icon }) => {
+            const isActive =
+              href === '/explore'
+                ? pathname === '/explore' || pathname === '/app' || pathname === '/app/map'
+                : pathname.startsWith(href)
+            return (
               <Link
-                href="/login"
-                className="rounded-md bg-primary px-3 py-1.5 text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+                key={href}
+                href={href}
+                className={`flex flex-col items-center gap-0.5 px-6 py-2 text-xs font-medium transition-colors ${
+                  isActive ? 'text-[#2D6A2D]' : 'text-gray-400'
+                }`}
               >
-                Entrar
+                <Icon
+                  size={22}
+                  strokeWidth={isActive ? 2.2 : 1.6}
+                  className={isActive ? 'text-[#2D6A2D]' : 'text-gray-400'}
+                />
+                {label}
               </Link>
-            )}
-          </nav>
+            )
+          })}
         </div>
-      </header>
-      <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
+      </nav>
     </div>
   )
 }
