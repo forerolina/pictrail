@@ -4,7 +4,10 @@ import { PaywallGate } from '../components/paywall/PaywallGate'
 const meta: Meta<typeof PaywallGate> = {
   title: 'Components/PaywallGate',
   component: PaywallGate,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    nextjs: { appDir: true },
+  },
 }
 
 export default meta

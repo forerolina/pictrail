@@ -13,15 +13,15 @@ const sports = [
 const recentPurchases = [
   {
     id: '1',
-    image: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=200&q=80',
+    image: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=200&q=80',
   },
   {
     id: '2',
-    image: 'https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=200&q=80',
+    image: 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=200&q=80',
   },
   {
     id: '3',
-    image: 'https://images.unsplash.com/photo-1461897104016-0b3b00cc81ee?w=200&q=80',
+    image: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=200&q=80',
   },
 ]
 

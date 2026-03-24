@@ -1,162 +1,265 @@
 'use client'
 
-import { useState } from 'react'
-import { Search, SlidersHorizontal, Camera, ChevronRight } from 'lucide-react'
+import { useState, useCallback, lazy, Suspense } from 'react'
+import { Search, SlidersHorizontal, ChevronRight, ChevronDown, Clock, TrendingUp, Camera, X } from 'lucide-react'
 import Link from 'next/link'
 
-const categories = ['Todos', 'Moto', 'Custom', 'Esportivo', 'Clássico', 'Trail']
+// Dynamic import to avoid SSR (Leaflet needs window)
+const ExploreMap = lazy(() => import('@/components/map/ExploreMap'))
 
-const routes = [
-  { name: 'Orla do Guaíba', color: '#2D6A2D', count: 47 },
-  { name: 'Parque Farroupilha Loop', color: '#3B82F6', count: 15 },
-  { name: 'Bento Gonçalves Norte', color: '#F97316', count: 23 },
+const ROUTES = [
+  {
+    id: 'orla',
+    name: 'Orla do Guaíba',
+    color: '#4F46E5',
+    distance: '12,4 km',
+    photographers: 3,
+    photos: 85,
+    lastRidden: 'Ontem',
+    tag: 'recente',
+  },
+  {
+    id: 'farroupilha',
+    name: 'Parque Farroupilha',
+    color: '#059669',
+    distance: '6,2 km',
+    photographers: 2,
+    photos: 57,
+    lastRidden: '3 dias atrás',
+    tag: 'popular',
+  },
+  {
+    id: 'bento',
+    name: 'Bento Gonçalves Norte',
+    color: '#D97706',
+    distance: '18,7 km',
+    photographers: 1,
+    photos: 31,
+    lastRidden: 'Semana passada',
+    tag: '',
+  },
+]
+
+const PAST_ROUTES = [
+  { id: 'orla', name: 'Orla do Guaíba', date: '23 Mar 2025', distance: '12,4 km' },
+  { id: 'farroupilha', name: 'Parque Farroupilha', date: '20 Mar 2025', distance: '6,2 km' },
+  { id: 'bento', name: 'Bento Gonçalves Norte', date: '15 Mar 2025', distance: '18,7 km' },
 ]
 
 export default function ExplorePage() {
-  const [activeCategory, setActiveCategory] = useState('Todos')
-  const [showVehicleSearch, setShowVehicleSearch] = useState(false)
+  const [activeRouteId, setActiveRouteId] = useState('orla')
+  const [showRouteSheet, setShowRouteSheet] = useState(false)
+  const [routeTab, setRouteTab] = useState<'past' | 'popular'>('past')
+  const [search, setSearch] = useState('')
+
+  const activeRoute = ROUTES.find((r) => r.id === activeRouteId)!
+
+  const handlePhotographerClick = useCallback((id: string) => {
+    console.log('photographer clicked:', id)
+  }, [])
 
   return (
-    <div className="flex flex-col h-screen bg-white">
-      {/* Header */}
-      <div className="px-4 pt-12 pb-3 bg-white">
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Explorar</h1>
-            <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-              <span>📍</span> Porto Alegre, RS
-            </p>
-          </div>
-          <div className="w-9 h-9 rounded-full bg-[#2D6A2D] flex items-center justify-center text-white text-sm font-bold">
-            JO
-          </div>
-        </div>
+    <div className="relative flex flex-col h-screen bg-white overflow-hidden">
 
-        {/* Search bar */}
-        <div className="flex gap-2 mb-3">
-          <div className="flex-1 flex items-center gap-2 bg-gray-100 rounded-xl px-3 py-2.5">
-            <Search size={16} className="text-gray-400" />
+      {/* ── Top bar (floating over map) ── */}
+      <div className="absolute top-0 left-0 right-0 z-30 px-3 pt-12 pb-2 pointer-events-none">
+        <div className="flex gap-2 pointer-events-auto">
+          {/* Search */}
+          <div className="flex-1 flex items-center gap-2 bg-white/95 backdrop-blur-sm shadow-md rounded-2xl px-3 py-2.5">
+            <Search size={15} className="text-gray-400 flex-none" />
             <input
               type="text"
-              placeholder="Buscar evento, local, bib..."
-              className="flex-1 bg-transparent text-sm outline-none text-gray-700 placeholder:text-gray-400"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por rota, fotógrafo, veículo..."
+              className="flex-1 bg-transparent text-sm outline-none text-gray-700 placeholder:text-gray-400 min-w-0"
             />
+            {search && (
+              <button onClick={() => setSearch('')}>
+                <X size={14} className="text-gray-400" />
+              </button>
+            )}
           </div>
-          <button className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
+          {/* Filter */}
+          <button className="w-10 h-10 bg-white/95 backdrop-blur-sm shadow-md rounded-2xl flex items-center justify-center flex-none">
             <SlidersHorizontal size={16} className="text-gray-600" />
           </button>
         </div>
-
-        {/* Category pills */}
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`flex-none px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                activeCategory === cat
-                  ? 'bg-[#2D6A2D] text-white'
-                  : 'bg-white border border-gray-200 text-gray-700'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
       </div>
 
-      {/* Map area */}
-      <div className="flex-1 relative overflow-hidden bg-[#f0f4e8]">
-        {/* Simulated map grid */}
-        <svg className="absolute inset-0 w-full h-full opacity-40" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#c8d4b0" strokeWidth="0.5"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-
-        {/* Route cluster markers */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          <div className="w-14 h-14 rounded-full bg-[#2D6A2D] flex items-center justify-center text-white font-bold text-lg shadow-lg">
-            47
-          </div>
-          <p className="text-center text-xs text-[#2D6A2D] font-medium mt-1">Farroupilha</p>
-        </div>
-        <div className="absolute top-1/4 right-1/4">
-          <div className="w-11 h-11 rounded-full bg-[#2D6A2D] flex items-center justify-center text-white font-bold shadow-md">
-            15
-          </div>
-          <p className="text-center text-xs text-[#2D6A2D] font-medium mt-1">Bento Gonçal.</p>
-        </div>
-        <div className="absolute bottom-1/3 left-1/6">
-          <div className="w-11 h-11 rounded-full bg-[#2D6A2D] flex items-center justify-center text-white font-bold shadow-md">
-            23
-          </div>
-          <p className="text-center text-xs text-[#2D6A2D] font-medium mt-1">Guaíba</p>
-        </div>
-
-        {/* Route legend popup */}
-        <div className="absolute top-4 left-4 bg-white rounded-2xl shadow-lg px-4 py-3 space-y-2">
-          {routes.map((r) => (
-            <div key={r.name} className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full" style={{ background: r.color }} />
-              <span className="text-xs font-medium text-gray-700">{r.name}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Vehicle search button */}
+      {/* ── Active route chip (floating) ── */}
+      <div className="absolute top-24 left-0 right-0 z-30 px-3 pointer-events-none">
         <button
-          onClick={() => setShowVehicleSearch(true)}
-          className="absolute bottom-4 right-4 bg-[#2D6A2D] text-white rounded-2xl px-3 py-2.5 flex flex-col items-center gap-1 shadow-lg"
+          onClick={() => setShowRouteSheet(true)}
+          className="pointer-events-auto flex items-center gap-2 bg-white/95 backdrop-blur-sm shadow-md rounded-full pl-2.5 pr-3 py-1.5"
         >
-          <Camera size={20} />
-          <span className="text-xs font-medium">Meu Veículo</span>
+          <div
+            className="w-2.5 h-2.5 rounded-full flex-none"
+            style={{ background: activeRoute.color }}
+          />
+          <span className="text-xs font-semibold text-gray-800 max-w-[160px] truncate">
+            {activeRoute.name}
+          </span>
+          <ChevronDown size={13} className="text-gray-400 flex-none" />
         </button>
       </div>
 
-      {/* Bottom sheet */}
-      <div className="bg-white px-4 pt-3 pb-4 border-t border-gray-100">
-        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-3" />
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="font-semibold text-gray-900 text-sm">Fotos perto de você</p>
-            <p className="text-xs text-gray-400 mt-0.5">Toque em um marcador para ver fotos</p>
+      {/* ── Leaflet Map ── */}
+      <div className="absolute inset-0 z-10">
+        <Suspense
+          fallback={
+            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+              <div className="w-8 h-8 border-2 border-[#4F46E5] border-t-transparent rounded-full animate-spin" />
+            </div>
+          }
+        >
+          <ExploreMap
+            activeRouteId={activeRouteId}
+            onPhotographerClick={handlePhotographerClick}
+          />
+        </Suspense>
+      </div>
+
+      {/* ── Bottom sheet (stats + CTA) ── */}
+      <div className="absolute bottom-16 left-0 right-0 z-30 px-3">
+        <div className="bg-white rounded-2xl shadow-lg px-4 py-3">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <p className="font-semibold text-gray-900 text-sm">{activeRoute.name}</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {activeRoute.photographers} fotógrafo{activeRoute.photographers > 1 ? 's' : ''} · {activeRoute.photos} fotos · {activeRoute.distance}
+              </p>
+            </div>
+            <Link
+              href="/photos"
+              className="flex items-center gap-1 text-sm font-bold text-[#4F46E5]"
+            >
+              Ver fotos <ChevronRight size={14} />
+            </Link>
           </div>
-          <Link
-            href="/photos"
-            className="flex items-center gap-1 text-sm font-semibold text-[#2D6A2D]"
-          >
-            Ver todas <ChevronRight size={14} />
-          </Link>
+
+          {/* Photographer avatars */}
+          <div className="flex items-center gap-1.5">
+            {['CM', 'AL', 'BC'].slice(0, activeRoute.photographers).map((initials, i) => (
+              <div
+                key={i}
+                className="w-7 h-7 rounded-full bg-[#4F46E5] flex items-center justify-center text-white text-[10px] font-bold border-2 border-white -ml-1 first:ml-0"
+              >
+                {initials}
+              </div>
+            ))}
+            <span className="text-xs text-gray-400 ml-1">
+              na rota agora
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Vehicle search modal */}
-      {showVehicleSearch && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-end">
-          <div className="w-full max-w-lg mx-auto bg-white rounded-t-3xl p-6">
-            <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Buscar por Veículo</h3>
-            <p className="text-sm text-gray-500 mb-4">
-              Tire uma foto do seu veículo para encontrar fotos automaticamente
-            </p>
-            <button
-              className="w-full bg-[#2D6A2D] text-white font-semibold py-3.5 rounded-2xl mb-3"
-              onClick={() => setShowVehicleSearch(false)}
-            >
-              Tirar foto do veículo
-            </button>
-            <button
-              onClick={() => setShowVehicleSearch(false)}
-              className="w-full text-gray-500 font-medium py-2"
-            >
-              Cancelar
-            </button>
+      {/* ── Route selector bottom sheet ── */}
+      {showRouteSheet && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 z-40 bg-black/30"
+            onClick={() => setShowRouteSheet(false)}
+          />
+
+          {/* Sheet */}
+          <div className="absolute bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl max-h-[75vh] overflow-y-auto">
+            {/* Handle */}
+            <div className="sticky top-0 bg-white pt-3 pb-2 px-4">
+              <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-3" />
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-base font-bold text-gray-900">Trocar rota</h2>
+                <button
+                  onClick={() => setShowRouteSheet(false)}
+                  className="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center"
+                >
+                  <X size={14} className="text-gray-500" />
+                </button>
+              </div>
+
+              {/* Tabs */}
+              <div className="flex gap-1 bg-gray-100 rounded-xl p-1">
+                <button
+                  onClick={() => setRouteTab('past')}
+                  className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-lg transition-colors ${
+                    routeTab === 'past' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                  }`}
+                >
+                  <Clock size={12} /> Minhas rotas
+                </button>
+                <button
+                  onClick={() => setRouteTab('popular')}
+                  className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-lg transition-colors ${
+                    routeTab === 'popular' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                  }`}
+                >
+                  <TrendingUp size={12} /> Mais fotos
+                </button>
+              </div>
+            </div>
+
+            {/* Route list */}
+            <div className="px-4 pb-8 pt-2 space-y-2">
+              {(routeTab === 'past' ? PAST_ROUTES : ROUTES.sort((a, b) => b.photos - a.photos))
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                .map((r: any) => {
+                  const route = ROUTES.find((x) => x.id === r.id)!
+                  const isActive = r.id === activeRouteId
+                  return (
+                    <button
+                      key={r.id}
+                      onClick={() => {
+                        setActiveRouteId(r.id)
+                        setShowRouteSheet(false)
+                      }}
+                      className={`w-full flex items-center gap-3 p-3.5 rounded-2xl border transition-colors text-left ${
+                        isActive
+                          ? 'border-[#4F46E5] bg-indigo-50'
+                          : 'border-gray-100 bg-white'
+                      }`}
+                    >
+                      {/* Color dot */}
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center flex-none"
+                        style={{ background: route.color + '20' }}
+                      >
+                        <div
+                          className="w-4 h-4 rounded-full"
+                          style={{ background: route.color }}
+                        />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{route.name}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {routeTab === 'past'
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            ? `${(r as any).date} · ${(r as any).distance}`
+                            : `${route.photos} fotos · ${route.photographers} fotógrafos`}
+                        </p>
+                      </div>
+
+                      {routeTab === 'popular' && route.tag === 'popular' && (
+                        <span className="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex-none">
+                          🔥 Popular
+                        </span>
+                      )}
+                      {isActive && (
+                        <div className="w-5 h-5 rounded-full bg-[#4F46E5] flex items-center justify-center flex-none">
+                          <span className="text-white text-[10px] font-bold">✓</span>
+                        </div>
+                      )}
+
+                      {/* Camera icon */}
+                      <Camera size={14} className="text-gray-300 flex-none" />
+                    </button>
+                  )
+                })}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   )

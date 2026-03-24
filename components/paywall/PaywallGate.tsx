@@ -1,16 +1,16 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/navigation'
 
 interface Props {
   feature: string
   children: React.ReactNode
   hasAccess: boolean
+  onUpgrade?: () => void
 }
 
-export function PaywallGate({ feature, children, hasAccess }: Props) {
-  const router = useRouter()
+export function PaywallGate({ feature, children, hasAccess, onUpgrade }: Props) {
+  const handleUpgrade = onUpgrade ?? (() => { window.location.href = '/settings/billing' })
 
   if (hasAccess) return <>{children}</>
 
@@ -26,10 +26,7 @@ export function PaywallGate({ feature, children, hasAccess }: Props) {
           <p className="text-sm text-muted-foreground">
             {feature} está disponível no plano PRO.
           </p>
-          <Button
-            className="w-full"
-            onClick={() => router.push('/settings/billing')}
-          >
+          <Button className="w-full" onClick={handleUpgrade}>
             Assinar PRO — R$ 29/mês
           </Button>
         </div>

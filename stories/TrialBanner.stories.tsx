@@ -4,7 +4,10 @@ import { TrialBanner } from '../components/paywall/TrialBanner'
 const meta: Meta<typeof TrialBanner> = {
   title: 'Components/TrialBanner',
   component: TrialBanner,
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    nextjs: { appDir: true },
+  },
 }
 
 export default meta
