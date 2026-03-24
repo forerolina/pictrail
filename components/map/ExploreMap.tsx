@@ -3,60 +3,92 @@
 import 'leaflet/dist/leaflet.css'
 import { useEffect, useRef, useState } from 'react'
 
-// Route data: Porto Alegre - Orla do Guaíba
+// Waypoints for each route — placed on actual Porto Alegre roads.
+// OSRM will snap these to the road network and return full geometry.
 const ROUTES = {
   orla: {
     name: 'Orla do Guaíba',
     color: '#4F46E5',
-    coords: [
-      [-30.0500, -51.2400],
-      [-30.0450, -51.2380],
-      [-30.0410, -51.2350],
-      [-30.0380, -51.2310],
-      [-30.0350, -51.2270],
-      [-30.0320, -51.2230],
-      [-30.0300, -51.2200],
-      [-30.0275, -51.2180],
-      [-30.0250, -51.2160],
-      [-30.0230, -51.2140],
+    // Av. Edvaldo Pereira Paiva / Orla do Guaíba waterfront avenue
+    waypoints: [
+      [-30.0215, -51.2244], // Ponte do Gasômetro (north)
+      [-30.0290, -51.2295],
+      [-30.0355, -51.2340],
+      [-30.0420, -51.2368],
+      [-30.0540, -51.2393], // Cristal (south)
     ] as [number, number][],
     photographers: [
-      { id: 'p1', lat: -30.0420, lng: -51.2360, name: 'Carlos M.', photos: 47, color: '#2D6A2D' },
-      { id: 'p2', lat: -30.0350, lng: -51.2270, name: 'Ana Lima', photos: 23, color: '#7C3AED' },
-      { id: 'p3', lat: -30.0280, lng: -51.2190, name: 'Bruno C.', photos: 15, color: '#DC2626' },
+      { id: 'p1', lat: -30.0420, lng: -51.2368, name: 'Carlos M.', photos: 47, color: '#2D6A2D' },
+      { id: 'p2', lat: -30.0355, lng: -51.2340, name: 'Ana Lima',  photos: 23, color: '#7C3AED' },
+      { id: 'p3', lat: -30.0280, lng: -51.2290, name: 'Bruno C.',  photos: 15, color: '#DC2626' },
     ],
   },
   farroupilha: {
     name: 'Parque Farroupilha',
     color: '#059669',
-    coords: [
-      [-30.0310, -51.2190],
-      [-30.0295, -51.2170],
-      [-30.0280, -51.2155],
-      [-30.0265, -51.2140],
-      [-30.0250, -51.2125],
-      [-30.0235, -51.2110],
-      [-30.0220, -51.2095],
+    // Perimeter of Parque Farroupilha (Redenção) in the city centre
+    waypoints: [
+      [-30.0295, -51.2175], // NE corner (Av. Osvaldo Aranha)
+      [-30.0320, -51.2130],
+      [-30.0345, -51.2100],
+      [-30.0370, -51.2118],
+      [-30.0360, -51.2165],
+      [-30.0330, -51.2185],
     ] as [number, number][],
     photographers: [
-      { id: 'p4', lat: -30.0270, lng: -51.2148, name: 'Marcos R.', photos: 38, color: '#2D6A2D' },
-      { id: 'p5', lat: -30.0235, lng: -51.2110, name: 'Julia F.', photos: 19, color: '#7C3AED' },
+      { id: 'p4', lat: -30.0330, lng: -51.2148, name: 'Marcos R.', photos: 38, color: '#2D6A2D' },
+      { id: 'p5', lat: -30.0355, lng: -51.2112, name: 'Julia F.',  photos: 19, color: '#7C3AED' },
     ],
   },
   bento: {
     name: 'Bento Gonçalves Norte',
     color: '#D97706',
-    coords: [
-      [-30.0380, -51.2100],
-      [-30.0360, -51.2080],
-      [-30.0340, -51.2060],
-      [-30.0320, -51.2040],
-      [-30.0300, -51.2020],
+    // Av. Bento Gonçalves heading NW toward UFRGS campus
+    waypoints: [
+      [-30.0385, -51.2115], // start near city centre
+      [-30.0330, -51.2045],
+      [-30.0270, -51.1980],
+      [-30.0210, -51.1910],
+      [-30.0155, -51.1845], // near UFRGS
     ] as [number, number][],
     photographers: [
-      { id: 'p6', lat: -30.0350, lng: -51.2065, name: 'Pedro L.', photos: 31, color: '#2D6A2D' },
+      { id: 'p6', lat: -30.0270, lng: -51.1980, name: 'Pedro L.', photos: 31, color: '#2D6A2D' },
     ],
   },
+}
+
+// Module-level cache so we only fetch each route once per session
+const geomCache = new Map<string, [number, number][]>()
+
+async function fetchRoadGeometry(
+  routeId: string,
+  waypoints: [number, number][]
+): Promise<[number, number][]> {
+  if (geomCache.has(routeId)) return geomCache.get(routeId)!
+
+  // Build OSRM coordinate string: lng,lat;lng,lat;...
+  const coords = waypoints.map(([lat, lng]) => `${lng},${lat}`).join(';')
+  const url =
+    `https://router.project-osrm.org/route/v1/driving/${coords}` +
+    `?geometries=geojson&overview=full`
+
+  try {
+    const res = await fetch(url)
+    const data = await res.json()
+    if (data.code === 'Ok' && data.routes?.[0]?.geometry?.coordinates?.length) {
+      // OSRM returns [lng, lat]; Leaflet needs [lat, lng]
+      const geom: [number, number][] = data.routes[0].geometry.coordinates.map(
+        ([lng, lat]: [number, number]) => [lat, lng]
+      )
+      geomCache.set(routeId, geom)
+      return geom
+    }
+  } catch {
+    // Network error — fall back to straight waypoints
+  }
+
+  geomCache.set(routeId, waypoints)
+  return waypoints
 }
 
 interface Props {
@@ -72,15 +104,15 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
   const layersRef = useRef<any[]>([])
   const [ready, setReady] = useState(false)
 
+  // ── Initialize Leaflet map ──────────────────────────────────────────────────
   useEffect(() => {
     if (!mapRef.current) return
     const container = mapRef.current
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const initMap = (L: any) => {
-      if (mapInstanceRef.current) return // already initialised
+      if (mapInstanceRef.current) return
 
-      // Fix default icon paths
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (L.Icon.Default.prototype as any)._getIconUrl
       L.Icon.Default.mergeOptions({
@@ -89,12 +121,8 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
         shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
       })
 
-      const map = L.map(container, {
-        zoomControl: false,
-        attributionControl: false,
-      })
+      const map = L.map(container, { zoomControl: false, attributionControl: false })
 
-      // CartoDB Voyager — clean Waze-like style
       L.tileLayer(
         'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
         { subdomains: 'abcd', maxZoom: 19 }
@@ -106,9 +134,8 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
       setReady(true)
     }
 
-    // Only create the map once the container has non-zero dimensions.
-    // Leaflet reads clientWidth/clientHeight at init time — if it sees 0 the
-    // pixel-origin is wrong and tiles land at garbage positions.
+    // Gate init until the container has non-zero dimensions so Leaflet
+    // measures the correct size and places tiles at the right pixel origin.
     const ro = new ResizeObserver(() => {
       if (container.clientHeight > 0 && !mapInstanceRef.current) {
         ro.disconnect()
@@ -117,7 +144,6 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
     })
     ro.observe(container)
 
-    // Also try immediately, in case the container is already sized.
     if (container.clientHeight > 0) {
       ro.disconnect()
       import('leaflet').then(initMap)
@@ -132,50 +158,53 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
     }
   }, [])
 
-  // Update route and markers when activeRouteId changes
+  // ── Draw route + markers whenever activeRouteId changes ───────────────────
   useEffect(() => {
     if (!ready || !mapInstanceRef.current) return
 
-    import('leaflet').then((L) => {
+    const route = ROUTES[activeRouteId as keyof typeof ROUTES]
+    if (!route) return
+
+    import('leaflet').then(async (L) => {
       const map = mapInstanceRef.current
 
-      // Remove old layers
+      // Remove previous layers
       layersRef.current.forEach((l) => map.removeLayer(l))
       layersRef.current = []
 
-      const route = ROUTES[activeRouteId as keyof typeof ROUTES]
-      if (!route) return
+      // ── Fetch road-following geometry for all routes concurrently ──────────
+      const [activeGeom, ...dimmedGeoms] = await Promise.all([
+        fetchRoadGeometry(activeRouteId, route.waypoints),
+        ...Object.entries(ROUTES)
+          .filter(([id]) => id !== activeRouteId)
+          .map(([id, r]) => fetchRoadGeometry(id, r.waypoints)),
+      ])
 
-      // Draw all routes dimmed first
-      Object.entries(ROUTES).forEach(([id, r]) => {
-        if (id === activeRouteId) return
-        const line = L.polyline(r.coords, {
-          color: '#CBD5E1',
-          weight: 4,
-          opacity: 0.5,
-        }).addTo(map)
+      // Draw inactive routes dimmed
+      dimmedGeoms.forEach((geom) => {
+        const line = L.polyline(geom, { color: '#CBD5E1', weight: 4, opacity: 0.5 }).addTo(map)
         layersRef.current.push(line)
       })
 
-      // Draw active route — thick Waze style
-      const shadow = L.polyline(route.coords, {
+      // Draw active route — Waze-style shadow + colour
+      const shadow = L.polyline(activeGeom, {
         color: 'rgba(0,0,0,0.15)',
         weight: 12,
         opacity: 1,
       }).addTo(map)
-      layersRef.current.push(shadow)
 
-      const mainLine = L.polyline(route.coords, {
+      const mainLine = L.polyline(activeGeom, {
         color: route.color,
         weight: 8,
         opacity: 1,
         lineCap: 'round',
         lineJoin: 'round',
       }).addTo(map)
-      layersRef.current.push(mainLine)
 
-      // User location marker (Waze arrow style)
-      const userPos = route.coords[Math.floor(route.coords.length / 2)]
+      layersRef.current.push(shadow, mainLine)
+
+      // ── User location arrow ─────────────────────────────────────────────────
+      const userPos = activeGeom[Math.floor(activeGeom.length / 2)]
       const userIcon = L.divIcon({
         html: `<div style="
           width:36px;height:36px;
@@ -194,16 +223,12 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
         iconAnchor: [18, 18],
         className: '',
       })
-      const userMarker = L.marker(userPos, { icon: userIcon }).addTo(map)
-      layersRef.current.push(userMarker)
+      layersRef.current.push(L.marker(userPos, { icon: userIcon }).addTo(map))
 
-      // Photographer markers
+      // ── Photographer markers ────────────────────────────────────────────────
       route.photographers.forEach((p) => {
         const icon = L.divIcon({
-          html: `<div style="
-            position:relative;
-            width:40px;height:40px;
-          ">
+          html: `<div style="position:relative;width:40px;height:40px;">
             <div style="
               width:40px;height:40px;
               background:${p.color};
@@ -233,42 +258,25 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
         const marker = L.marker([p.lat, p.lng], { icon })
           .addTo(map)
           .on('click', () => onPhotographerClick(p.id))
-        const tooltip = L.tooltip({
-          permanent: false,
-          direction: 'top',
-          offset: [0, -52],
-          className: 'photographer-tooltip',
-        }).setContent(`<strong>${p.name}</strong><br/>${p.photos} fotos`)
-        marker.bindTooltip(tooltip)
+        marker.bindTooltip(
+          L.tooltip({ permanent: false, direction: 'top', offset: [0, -52], className: 'photographer-tooltip' })
+            .setContent(`<strong>${p.name}</strong><br/>${p.photos} fotos`)
+        )
         layersRef.current.push(marker)
       })
 
-      // Fit map to route — no animation so tiles load at the final position only
-      map.fitBounds(L.polyline(route.coords).getBounds(), { padding: [60, 60], animate: false })
+      // Fit to active route
+      map.fitBounds(L.polyline(activeGeom).getBounds(), { padding: [60, 60], animate: false })
     })
   }, [ready, activeRouteId, onPhotographerClick])
 
   return (
     <div style={{ position: 'absolute', inset: 0 }}>
       <style>{`
-        .leaflet-container {
-          width: 100% !important;
-          height: 100% !important;
-          font-family: 'Inter', sans-serif;
-        }
-        .photographer-tooltip {
-          background: white;
-          border: none;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-          padding: 4px 8px;
-          font-size: 12px;
-        }
-        .photographer-tooltip::before { display: none; }
-        .leaflet-control-attribution {
-          font-size: 9px !important;
-          background: rgba(255,255,255,0.6) !important;
-        }
+        .leaflet-container { width:100%!important; height:100%!important; font-family:'Inter',sans-serif; }
+        .photographer-tooltip { background:white; border:none; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15); padding:4px 8px; font-size:12px; }
+        .photographer-tooltip::before { display:none; }
+        .leaflet-control-attribution { font-size:9px!important; background:rgba(255,255,255,0.6)!important; }
       `}</style>
       <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
       {!ready && (
