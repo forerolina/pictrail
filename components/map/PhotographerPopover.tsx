@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Star, Camera, TrendingUp, ChevronRight, Flame } from 'lucide-react'
+import { Star, Camera, ChevronRight, Flame } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Popover,
@@ -196,17 +196,11 @@ export default function PhotographerPopover({ photographerId, anchorX, anchorY, 
             </div>
 
             {/* ── Social proof ─────────────────────────────── */}
-            <div className="px-4 py-2.5 bg-white space-y-1.5">
+            <div className="px-4 py-2.5 bg-white">
               <div className="flex items-center gap-2 text-xs text-gray-600 bg-orange-50 rounded-xl px-3 py-2">
                 <Flame size={13} className="text-orange-500 flex-none" />
                 <span>
-                  <strong className="text-orange-600">{profile.recentBuyers} pessoas</strong> compraram fotos nas últimas 24h
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-gray-600 bg-green-50 rounded-xl px-3 py-2">
-                <TrendingUp size={13} className="text-green-600 flex-none" />
-                <span>
-                  <strong className="text-green-700">{profile.activeNow} pessoas</strong> estão vendo este perfil agora
+                  <strong className="text-orange-600">{profile.recentBuyers} pessoas</strong> compraram fotos no último mês
                 </span>
               </div>
             </div>

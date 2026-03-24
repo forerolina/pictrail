@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, lazy, Suspense } from 'react'
-import { Search, SlidersHorizontal, ChevronRight, ChevronDown, Clock, TrendingUp, Camera, X } from 'lucide-react'
+import { Search, SlidersHorizontal, ChevronRight, Clock, TrendingUp, Camera, X, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import PhotographerPopover from '@/components/map/PhotographerPopover'
 
@@ -67,6 +67,31 @@ export default function ExplorePage() {
 
       {/* ── Top bar (floating over map) ── */}
       <div className="absolute top-0 left-0 right-0 z-30 px-3 pt-12 pb-2 pointer-events-none">
+
+        {/* App name row + user avatar */}
+        <div className="flex items-center justify-between mb-2 pointer-events-auto">
+          <span className="text-lg font-extrabold text-gray-900">PicTrail</span>
+          <Link href="/profile">
+            <div className="w-9 h-9 rounded-full bg-[#4F46E5] flex items-center justify-center border-2 border-white shadow-md">
+              <span className="text-white text-xs font-bold">LF</span>
+            </div>
+          </Link>
+        </div>
+
+        {/* Route pill */}
+        <div className="mb-2 pointer-events-auto">
+          <button
+            onClick={() => setShowRouteSheet(true)}
+            className="flex items-center gap-1.5 bg-white/95 backdrop-blur-sm shadow-md rounded-full pl-2.5 pr-3 py-1.5"
+          >
+            <MapPin size={13} className="flex-none" style={{ color: activeRoute.color }} />
+            <span className="text-xs font-semibold text-gray-800 max-w-[200px] truncate">
+              {activeRoute.name}
+            </span>
+          </button>
+        </div>
+
+        {/* Search + filter */}
         <div className="flex gap-2 pointer-events-auto">
           {/* Search */}
           <div className="flex-1 flex items-center gap-2 bg-white/95 backdrop-blur-sm shadow-md rounded-2xl px-3 py-2.5">
@@ -89,23 +114,6 @@ export default function ExplorePage() {
             <SlidersHorizontal size={16} className="text-gray-600" />
           </button>
         </div>
-      </div>
-
-      {/* ── Active route chip (floating) ── */}
-      <div className="absolute top-24 left-0 right-0 z-30 px-3 pointer-events-none">
-        <button
-          onClick={() => setShowRouteSheet(true)}
-          className="pointer-events-auto flex items-center gap-2 bg-white/95 backdrop-blur-sm shadow-md rounded-full pl-2.5 pr-3 py-1.5"
-        >
-          <div
-            className="w-2.5 h-2.5 rounded-full flex-none"
-            style={{ background: activeRoute.color }}
-          />
-          <span className="text-xs font-semibold text-gray-800 max-w-[160px] truncate">
-            {activeRoute.name}
-          </span>
-          <ChevronDown size={13} className="text-gray-400 flex-none" />
-        </button>
       </div>
 
       {/* ── Photographer popover (anchored to marker screen position) ── */}
@@ -147,7 +155,7 @@ export default function ExplorePage() {
               </p>
             </div>
             <Link
-              href="/photos"
+              href={`/photos?route=${activeRouteId}`}
               className="flex items-center gap-1 text-sm font-bold text-[#4F46E5]"
             >
               Ver fotos <ChevronRight size={14} />
