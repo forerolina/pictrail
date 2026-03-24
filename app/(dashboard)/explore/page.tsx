@@ -68,27 +68,28 @@ export default function ExplorePage() {
       {/* ── Top bar (floating over map) ── */}
       <div className="absolute top-0 left-0 right-0 z-30 px-3 pt-12 pb-2 pointer-events-none">
 
-        {/* App name row + user avatar */}
-        <div className="flex items-center justify-between mb-2 pointer-events-auto">
-          <span className="text-lg font-extrabold text-gray-900">PicTrail</span>
-          <Link href="/profile">
+        {/* Header row: [PicTrail + pill] ←→ [avatar] */}
+        <div className="flex items-center justify-between mb-6 pointer-events-auto">
+          {/* Left: stacked label + pill, 8px gap */}
+          <div className="flex flex-col gap-2">
+            <span className="text-lg font-extrabold text-gray-900 leading-none">PicTrail</span>
+            <button
+              onClick={() => setShowRouteSheet(true)}
+              className="flex items-center gap-1.5 bg-white/95 backdrop-blur-sm shadow-md rounded-full pl-2.5 pr-3 py-1.5 self-start"
+            >
+              <MapPin size={13} className="flex-none" style={{ color: activeRoute.color }} />
+              <span className="text-xs font-semibold text-gray-800 max-w-[200px] truncate">
+                {activeRoute.name}
+              </span>
+            </button>
+          </div>
+
+          {/* Right: profile avatar, vertically centred with the left stack */}
+          <Link href="/profile" className="self-center">
             <div className="w-9 h-9 rounded-full bg-[#4F46E5] flex items-center justify-center border-2 border-white shadow-md">
               <span className="text-white text-xs font-bold">LF</span>
             </div>
           </Link>
-        </div>
-
-        {/* Route pill */}
-        <div className="mb-2 pointer-events-auto">
-          <button
-            onClick={() => setShowRouteSheet(true)}
-            className="flex items-center gap-1.5 bg-white/95 backdrop-blur-sm shadow-md rounded-full pl-2.5 pr-3 py-1.5"
-          >
-            <MapPin size={13} className="flex-none" style={{ color: activeRoute.color }} />
-            <span className="text-xs font-semibold text-gray-800 max-w-[200px] truncate">
-              {activeRoute.name}
-            </span>
-          </button>
         </div>
 
         {/* Search + filter */}
