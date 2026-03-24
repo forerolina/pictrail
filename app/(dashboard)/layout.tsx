@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
 
 export default async function DashboardLayout({
   children,
@@ -8,7 +7,6 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const session = await auth()
-  if (!session) redirect('/login')
 
   return (
     <div className="min-h-screen bg-background">
@@ -21,15 +19,26 @@ export default async function DashboardLayout({
             <Link href="/explore" className="text-muted-foreground hover:text-foreground transition-colors">
               Explorar
             </Link>
-            <Link href="/purchases" className="text-muted-foreground hover:text-foreground transition-colors">
-              Compras
-            </Link>
-            <Link href="/photographer/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
-              Fotógrafo
-            </Link>
-            <Link href="/settings/billing" className="text-muted-foreground hover:text-foreground transition-colors">
-              Plano
-            </Link>
+            {session ? (
+              <>
+                <Link href="/purchases" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Compras
+                </Link>
+                <Link href="/photographer/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Fotógrafo
+                </Link>
+                <Link href="/settings/billing" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Plano
+                </Link>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="rounded-md bg-primary px-3 py-1.5 text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+              >
+                Entrar
+              </Link>
+            )}
           </nav>
         </div>
       </header>

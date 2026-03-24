@@ -2,6 +2,7 @@
 
 import { signIn } from 'next-auth/react'
 import { useState } from 'react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -91,6 +92,22 @@ export default function LoginPage() {
         <p className="text-center text-xs text-muted-foreground">
           Ao entrar, você recebe 14 dias de acesso PRO gratuito.
         </p>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-card px-2 text-muted-foreground">ou</span>
+          </div>
+        </div>
+
+        <Link
+          href="/explore"
+          className="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Continuar como visitante →
+        </Link>
       </div>
     </div>
   )
