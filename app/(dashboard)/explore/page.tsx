@@ -59,7 +59,7 @@ export default function ExplorePage() {
   }, [])
 
   return (
-    <div className="relative flex flex-col h-screen bg-white overflow-hidden">
+    <div className="relative flex flex-col bg-white" style={{ height: '100dvh', overflow: 'hidden' }}>
 
       {/* ── Top bar (floating over map) ── */}
       <div className="absolute top-0 left-0 right-0 z-30 px-3 pt-12 pb-2 pointer-events-none">
@@ -105,7 +105,7 @@ export default function ExplorePage() {
       </div>
 
       {/* ── Leaflet Map ── */}
-      <div className="absolute inset-0 z-10">
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10 }}>
         <Suspense
           fallback={
             <div className="w-full h-full bg-gray-100 flex items-center justify-center">

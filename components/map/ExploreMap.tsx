@@ -1,5 +1,6 @@
 'use client'
 
+import 'leaflet/dist/leaflet.css'
 import { useEffect, useRef, useState } from 'react'
 
 // Route data: Porto Alegre - Orla do Guaíba
@@ -72,10 +73,13 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return
+    if (!mapRef.current) return
+    const container = mapRef.current
 
-    // Dynamically import Leaflet (avoids SSR issues)
-    import('leaflet').then((L) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const initMap = (L: any) => {
+      if (mapInstanceRef.current) return // already initialised
+
       // Fix default icon paths
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -85,27 +89,42 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
         shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
       })
 
-      const map = L.map(mapRef.current!, {
-        center: [-30.0350, -51.2270],
-        zoom: 14,
+      const map = L.map(container, {
         zoomControl: false,
         attributionControl: false,
       })
 
-      // CartoDB Positron — clean Waze-like style
+      // CartoDB Voyager — clean Waze-like style
       L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
         { subdomains: 'abcd', maxZoom: 19 }
       ).addTo(map)
 
-      // Attribution (small)
       L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(map)
 
       mapInstanceRef.current = map
       setReady(true)
+    }
+
+    // Only create the map once the container has non-zero dimensions.
+    // Leaflet reads clientWidth/clientHeight at init time — if it sees 0 the
+    // pixel-origin is wrong and tiles land at garbage positions.
+    const ro = new ResizeObserver(() => {
+      if (container.clientHeight > 0 && !mapInstanceRef.current) {
+        ro.disconnect()
+        import('leaflet').then(initMap)
+      }
     })
+    ro.observe(container)
+
+    // Also try immediately, in case the container is already sized.
+    if (container.clientHeight > 0) {
+      ro.disconnect()
+      import('leaflet').then(initMap)
+    }
 
     return () => {
+      ro.disconnect()
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove()
         mapInstanceRef.current = null
@@ -138,7 +157,7 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
         layersRef.current.push(line)
       })
 
-      // Draw active route — thick purple/blue Waze style
+      // Draw active route — thick Waze style
       const shadow = L.polyline(route.coords, {
         color: 'rgba(0,0,0,0.15)',
         weight: 12,
@@ -224,15 +243,19 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
         layersRef.current.push(marker)
       })
 
-      // Fit map to route
-      map.fitBounds(L.polyline(route.coords).getBounds(), { padding: [60, 60] })
+      // Fit map to route — no animation so tiles load at the final position only
+      map.fitBounds(L.polyline(route.coords).getBounds(), { padding: [60, 60], animate: false })
     })
   }, [ready, activeRouteId, onPhotographerClick])
 
   return (
-    <>
+    <div style={{ position: 'absolute', inset: 0 }}>
       <style>{`
-        .leaflet-container { font-family: 'Inter', sans-serif; }
+        .leaflet-container {
+          width: 100% !important;
+          height: 100% !important;
+          font-family: 'Inter', sans-serif;
+        }
         .photographer-tooltip {
           background: white;
           border: none;
@@ -253,6 +276,6 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
           <div className="w-8 h-8 border-2 border-[#4F46E5] border-t-transparent rounded-full animate-spin" />
         </div>
       )}
-    </>
+    </div>
   )
 }
