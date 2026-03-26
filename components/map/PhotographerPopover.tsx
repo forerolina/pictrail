@@ -34,7 +34,7 @@ const PHOTOGRAPHER_PROFILES: Record<string, {
     totalSales: 1840,
     recentBuyers: 8,
     activeNow: 3,
-    speciality: 'Ciclismo & Triathlon',
+    speciality: 'Moto Esportiva & Naked',
     badge: 'Top vendedor',
   },
   p2: {
@@ -47,7 +47,7 @@ const PHOTOGRAPHER_PROFILES: Record<string, {
     totalSales: 940,
     recentBuyers: 5,
     activeNow: 2,
-    speciality: 'Corrida & Moto',
+    speciality: 'Adventure & Trail',
     badge: null,
   },
   p3: {
@@ -73,7 +73,7 @@ const PHOTOGRAPHER_PROFILES: Record<string, {
     totalSales: 1520,
     recentBuyers: 11,
     activeNow: 4,
-    speciality: 'Ciclismo urbano',
+    speciality: 'Naked & Custom',
     badge: 'Top vendedor',
   },
   p5: {
@@ -86,7 +86,7 @@ const PHOTOGRAPHER_PROFILES: Record<string, {
     totalSales: 670,
     recentBuyers: 4,
     activeNow: 2,
-    speciality: 'Corrida & Ciclismo',
+    speciality: 'Custom & Touring',
     badge: null,
   },
   p6: {
@@ -99,7 +99,7 @@ const PHOTOGRAPHER_PROFILES: Record<string, {
     totalSales: 310,
     recentBuyers: 2,
     activeNow: 1,
-    speciality: 'MTB & Trilha',
+    speciality: 'Enduro & Off-road',
     badge: null,
   },
 }
@@ -124,38 +124,44 @@ export default function PhotographerPopover({ photographerId, anchorX, anchorY, 
         />
       </PopoverAnchor>
 
+      {/* Glassmorphism floating panel — 70% surface opacity + backdrop-blur */}
       <PopoverContent
         side="top"
         align="center"
         sideOffset={12}
-        className="w-72 p-0 overflow-hidden rounded-2xl border-0 shadow-xl"
+        className="w-72 p-0 overflow-hidden rounded-2xl border-0 shadow-ambient"
+        style={{
+          background: 'rgba(248, 249, 250, 0.92)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+        }}
       >
         {profile && (
           <>
             {/* ── Header ───────────────────────────────────── */}
-            <div className="px-4 pt-4 pb-3 bg-white">
+            <div className="px-4 pt-4 pb-3">
               <div className="flex items-start gap-3">
                 <div className="relative">
-                  <Avatar className="h-14 w-14 border-2 border-white shadow-md">
+                  <Avatar className="h-14 w-14 shadow-ambient">
                     <AvatarImage src={profile.avatar} alt={profile.name} />
-                    <AvatarFallback className="bg-indigo-100 text-indigo-700 font-bold text-lg">
+                    <AvatarFallback className="bg-accent text-accent-foreground font-bold text-lg">
                       {profile.initials}
                     </AvatarFallback>
                   </Avatar>
-                  {/* Online dot */}
-                  <span className="absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-white" />
+                  {/* Online dot — primary teal */}
+                  <span className="absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full bg-primary" />
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <p className="font-bold text-gray-900 text-sm leading-tight">{profile.name}</p>
+                    <p className="font-bold text-foreground text-sm leading-tight">{profile.name}</p>
                     {profile.badge && (
                       <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">
                         ⭐ {profile.badge}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 mt-0.5">{profile.speciality}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{profile.speciality}</p>
                   {/* Stars */}
                   <div className="flex items-center gap-1 mt-1">
                     <div className="flex">
@@ -163,17 +169,17 @@ export default function PhotographerPopover({ photographerId, anchorX, anchorY, 
                         <Star
                           key={s}
                           size={11}
-                          className={s <= Math.round(profile.rating) ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200'}
+                          className={s <= Math.round(profile.rating) ? 'text-amber-400 fill-amber-400' : 'text-accent fill-accent'}
                         />
                       ))}
                     </div>
-                    <span className="text-xs font-semibold text-gray-700">{profile.rating}</span>
-                    <span className="text-xs text-gray-400">({profile.reviewCount})</span>
+                    <span className="text-xs font-semibold text-foreground">{profile.rating}</span>
+                    <span className="text-xs text-muted-foreground">({profile.reviewCount})</span>
                   </div>
                 </div>
 
                 <PopoverClose
-                  className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 flex-none mt-0.5"
+                  className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground flex-none mt-0.5"
                   onClick={onClose}
                 >
                   <span className="text-xs leading-none">✕</span>
@@ -181,35 +187,36 @@ export default function PhotographerPopover({ photographerId, anchorX, anchorY, 
               </div>
             </div>
 
-            {/* ── Stats bar ────────────────────────────────── */}
-            <div className="grid grid-cols-2 divide-x divide-gray-100 border-y border-gray-100 bg-gray-50">
+            {/* ── Stats bar — tonal separation, no 1px dividers ── */}
+            <div className="grid grid-cols-2 bg-muted/60">
               <div className="px-4 py-2.5 text-center">
-                <p className="text-sm font-bold text-gray-900">{profile.totalSales.toLocaleString('pt-BR')}</p>
-                <p className="text-[10px] text-gray-500 flex items-center justify-center gap-0.5">
+                <p className="text-sm font-bold text-foreground">{profile.totalSales.toLocaleString('pt-BR')}</p>
+                <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-0.5">
                   <Camera size={9} /> fotos vendidas
                 </p>
               </div>
-              <div className="px-4 py-2.5 text-center">
-                <p className="text-sm font-bold text-gray-900">{profile.reviewCount}</p>
-                <p className="text-[10px] text-gray-500">avaliações</p>
+              {/* Ghost border divider — outline-variant at 15% */}
+              <div className="px-4 py-2.5 text-center border-l border-[rgba(188,201,206,0.2)]">
+                <p className="text-sm font-bold text-foreground">{profile.reviewCount}</p>
+                <p className="text-[10px] text-muted-foreground">avaliações</p>
               </div>
             </div>
 
             {/* ── Social proof ─────────────────────────────── */}
-            <div className="px-4 py-2.5 bg-white">
-              <div className="flex items-center gap-2 text-xs text-gray-600 bg-orange-50 rounded-xl px-3 py-2">
-                <Flame size={13} className="text-orange-500 flex-none" />
+            <div className="px-4 py-2.5">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground bg-accent/60 rounded-xl px-3 py-2">
+                <Flame size={13} className="text-amber-500 flex-none" />
                 <span>
-                  <strong className="text-orange-600">{profile.recentBuyers} pessoas</strong> compraram fotos no último mês
+                  <strong className="text-foreground">{profile.recentBuyers} pessoas</strong> compraram fotos no último mês
                 </span>
               </div>
             </div>
 
-            {/* ── CTA ──────────────────────────────────────── */}
+            {/* ── CTA — gradient primary + rounded-full ──── */}
             <div className="px-4 pb-4 pt-1">
               <Link
                 href={`/photographer/${profile.handle}`}
-                className="flex items-center justify-center gap-1.5 w-full bg-[#4F46E5] text-white text-sm font-semibold py-2.5 rounded-xl hover:bg-indigo-600 transition-colors"
+                className="flex items-center justify-center gap-1.5 w-full btn-primary text-sm font-semibold py-2.5"
                 onClick={onClose}
               >
                 Ver todas as fotos <ChevronRight size={15} />

@@ -3,11 +3,12 @@
 import { Settings, ChevronRight, Camera } from 'lucide-react'
 import Link from 'next/link'
 
-const sports = [
-  { label: 'Corrida', emoji: '🏃' },
-  { label: 'Ciclismo', emoji: '🚴' },
-  { label: 'Triathlon', emoji: '🏊' },
-  { label: 'MTB', emoji: '🚵' },
+const motorcycleCategories = [
+  { label: 'Custom', emoji: '🏍️' },
+  { label: 'Naked', emoji: '🏍️' },
+  { label: 'Adventure', emoji: '🏔️' },
+  { label: 'Trail', emoji: '🛤️' },
+  { label: 'Touring', emoji: '🗺️' },
 ]
 
 const recentPurchases = [
@@ -27,19 +28,19 @@ const recentPurchases = [
 
 export default function ProfilePage() {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Green header */}
-      <div className="bg-[#2D6A2D] px-4 pt-12 pb-6">
+    <div className="flex flex-col min-h-screen bg-background">
+      {/* Header — primary teal */}
+      <div className="bg-primary px-4 pt-12 pb-6">
         <div className="flex items-center justify-between mb-5">
           <h1 className="text-xl font-bold text-white">Meu Perfil</h1>
-          <button className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+          <button className="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center">
             <Settings size={18} className="text-white" />
           </button>
         </div>
 
         {/* User info */}
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-16 h-16 rounded-2xl bg-white/20 border-2 border-white/40 flex items-center justify-center text-white text-xl font-bold">
+          <div className="w-16 h-16 rounded-2xl bg-white/15 flex items-center justify-center text-white text-xl font-bold">
             JO
           </div>
           <div>
@@ -51,10 +52,10 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Stats — tonal white layers */}
         <div className="grid grid-cols-3 gap-2">
           {[
-            { label: 'Corridas', value: '28' },
+            { label: 'Saídas', value: '28' },
             { label: 'Fotos compradas', value: '12' },
             { label: 'Favoritos', value: '7' },
           ].map((stat) => (
@@ -66,33 +67,34 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Body */}
+      {/* Body — surface background */}
       <div className="flex-1 px-4 pt-4 space-y-4 pb-6">
-        {/* Photographer mode card */}
-        <div className="bg-white rounded-2xl p-4 flex items-center gap-3 shadow-sm">
-          <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
-            <Camera size={20} className="text-gray-500" />
+        {/* Photographer mode card — surface-container-lowest, no border */}
+        <div className="bg-card rounded-2xl p-4 flex items-center gap-3 shadow-ambient">
+          <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center">
+            <Camera size={20} className="text-accent-foreground" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-gray-900 text-sm">Modo Fotógrafo</p>
-            <p className="text-xs text-gray-400">Comece a vender suas fotos</p>
+            <p className="font-semibold text-foreground text-sm">Modo Fotógrafo</p>
+            <p className="text-xs text-muted-foreground">Comece a vender suas fotos</p>
           </div>
+          {/* Secondary button — surface-container bg, no border */}
           <Link
             href="/photographer/onboarding"
-            className="flex items-center gap-1 border border-[#2D6A2D] text-[#2D6A2D] text-sm font-semibold px-3 py-1.5 rounded-xl"
+            className="flex items-center gap-1 bg-secondary text-primary text-sm font-semibold px-3 py-1.5 rounded-full"
           >
             Ativar <ChevronRight size={14} />
           </Link>
         </div>
 
-        {/* Sports */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <p className="font-semibold text-gray-900 mb-3">Meus esportes</p>
+        {/* Sports — tonal tags, no borders */}
+        <div className="bg-card rounded-2xl p-4 shadow-ambient">
+          <p className="font-semibold text-foreground mb-3">Minhas categorias</p>
           <div className="flex flex-wrap gap-2">
-            {sports.map((s) => (
+            {motorcycleCategories.map((s) => (
               <span
                 key={s.label}
-                className="flex items-center gap-1.5 border border-gray-200 text-gray-700 text-sm font-medium px-3 py-1.5 rounded-full"
+                className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-sm font-medium px-3 py-1.5 rounded-full"
               >
                 <span>{s.emoji}</span> {s.label}
               </span>
@@ -101,10 +103,11 @@ export default function ProfilePage() {
         </div>
 
         {/* Recent purchases */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
+        <div className="bg-card rounded-2xl p-4 shadow-ambient">
           <div className="flex items-center justify-between mb-3">
-            <p className="font-semibold text-gray-900">Compras recentes</p>
-            <Link href="/purchases" className="text-sm font-semibold text-[#2D6A2D]">
+            <p className="font-semibold text-foreground">Compras recentes</p>
+            {/* Tertiary — text-only */}
+            <Link href="/purchases" className="text-sm font-semibold text-primary">
               Ver todas
             </Link>
           </div>
@@ -120,8 +123,8 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Settings links */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        {/* Settings links — tonal separators via background, no 1px borders */}
+        <div className="bg-card rounded-2xl shadow-ambient overflow-hidden">
           {[
             { label: 'Configurações da conta', href: '/settings/billing' },
             { label: 'Plano e assinatura', href: '/settings/billing' },
@@ -131,11 +134,11 @@ export default function ProfilePage() {
               key={item.label}
               href={item.href}
               className={`flex items-center justify-between px-4 py-3.5 ${
-                i < arr.length - 1 ? 'border-b border-gray-100' : ''
-              } ${item.label === 'Sair' ? 'text-red-500' : 'text-gray-700'}`}
+                i < arr.length - 1 ? 'border-b border-[rgba(188,201,206,0.15)]' : ''
+              } ${item.label === 'Sair' ? 'text-destructive' : 'text-foreground'}`}
             >
               <span className="text-sm font-medium">{item.label}</span>
-              <ChevronRight size={16} className="text-gray-300" />
+              <ChevronRight size={16} className="text-muted-foreground/40" />
             </Link>
           ))}
         </div>

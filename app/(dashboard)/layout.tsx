@@ -20,8 +20,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {children}
       </main>
 
-      {/* Bottom navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border">
+      {/* Bottom navigation — tonal surface, no 1px border, ambient shadow upward */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 liquid-glass-nav rounded-t-[28px]">
         <div className="max-w-lg mx-auto flex items-center justify-around h-16">
           {navItems.map(({ href, label, icon: Icon }) => {
             const isActive =
@@ -33,13 +33,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 key={href}
                 href={href}
                 className={`flex flex-col items-center gap-0.5 px-6 py-2 text-xs font-medium transition-colors ${
-                  isActive ? 'text-[#2D6A2D]' : 'text-gray-400'
+                  isActive ? 'text-primary' : 'text-muted-foreground/60'
                 }`}
               >
                 <Icon
                   size={22}
                   strokeWidth={isActive ? 2.2 : 1.6}
-                  className={isActive ? 'text-[#2D6A2D]' : 'text-gray-400'}
+                  className={isActive ? 'text-primary' : 'text-muted-foreground/60'}
                 />
                 {label}
               </Link>

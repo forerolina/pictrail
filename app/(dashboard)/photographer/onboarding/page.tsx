@@ -32,52 +32,52 @@ export default function PhotographerOnboardingPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      {/* Header */}
-      <div className="px-4 pt-12 pb-4 border-b border-gray-100">
+    <div className="flex flex-col min-h-screen bg-card">
+      {/* Header — no border, tonal background */}
+      <div className="px-4 pt-12 pb-4 bg-card">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <button
               onClick={() => (step > 0 ? setStep(step - 1) : router.back())}
-              className="w-9 h-9 bg-gray-100 rounded-xl flex items-center justify-center"
+              className="w-9 h-9 bg-muted rounded-xl flex items-center justify-center"
             >
-              <ArrowLeft size={18} className="text-gray-600" />
+              <ArrowLeft size={18} className="text-muted-foreground" />
             </button>
             <div>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-muted-foreground label-instrument">
                 Cadastro de Fotógrafo · {step + 1}/{steps.length}
               </p>
-              <h1 className="text-lg font-bold text-gray-900">{steps[step].label}</h1>
+              <h1 className="text-lg font-bold text-foreground">{steps[step].label}</h1>
             </div>
           </div>
-          <Camera size={22} className="text-[#2D6A2D]" />
+          <Camera size={22} className="text-primary" />
         </div>
 
-        {/* Progress bar */}
+        {/* Progress bar — tonal, no border */}
         <div className="flex gap-1">
           {steps.map((_, i) => (
             <div
               key={i}
               className={`flex-1 h-1 rounded-full transition-colors ${
-                i <= step ? 'bg-[#2D6A2D]' : 'bg-gray-200'
+                i <= step ? 'bg-primary' : 'bg-accent'
               }`}
             />
           ))}
         </div>
       </div>
 
-      <div className="flex-1 px-4 py-6 space-y-5 pb-32">
+      <div className="flex-1 px-4 py-6 space-y-5 pb-32 bg-background">
         {/* Step 0: Profile */}
         {step === 0 && (
           <>
             <div className="flex flex-col items-center mb-2">
-              <div className="relative w-20 h-20 bg-[#e8f5e9] rounded-2xl flex items-center justify-center mb-3">
-                <Camera size={32} className="text-[#2D6A2D]/40" />
-                <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-orange-300 rounded-full flex items-center justify-center">
+              <div className="relative w-20 h-20 bg-accent rounded-2xl flex items-center justify-center mb-3">
+                <Camera size={32} className="text-accent-foreground/40" />
+                <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center">
                   <Camera size={12} className="text-white" />
                 </button>
               </div>
-              <p className="text-xs text-gray-400 text-center">
+              <p className="text-xs text-muted-foreground text-center">
                 Preencha seus dados para começar a vender fotos no PicTrail.
               </p>
             </div>
@@ -95,10 +95,10 @@ export default function PhotographerOnboardingPage() {
           </>
         )}
 
-        {/* Step 2: Routes */}
+        {/* Step 2: Routes — tonal selected state, no borders */}
         {step === 2 && (
           <>
-            <p className="text-sm text-gray-500">Selecione os percursos onde você fotografa:</p>
+            <p className="text-sm text-muted-foreground">Selecione os percursos onde você fotografa:</p>
             {['Orla do Guaíba', 'Parque Farroupilha Loop', 'Bento Gonçalves Norte', 'Gramado Trail', 'Canela MTB'].map((r) => (
               <button
                 key={r}
@@ -110,14 +110,14 @@ export default function PhotographerOnboardingPage() {
                       : [...f.routes, r],
                   }))
                 }
-                className={`flex items-center justify-between w-full p-3.5 rounded-xl border transition-colors ${
+                className={`flex items-center justify-between w-full p-3.5 rounded-xl transition-colors ${
                   form.routes.includes(r)
-                    ? 'border-[#2D6A2D] bg-[#e8f5e9] text-[#2D6A2D]'
-                    : 'border-gray-200 text-gray-700'
+                    ? 'bg-accent text-accent-foreground'
+                    : 'bg-secondary text-secondary-foreground'
                 }`}
               >
                 <span className="text-sm font-medium">{r}</span>
-                {form.routes.includes(r) && <span className="text-[#2D6A2D]">✓</span>}
+                {form.routes.includes(r) && <span className="text-primary">✓</span>}
               </button>
             ))}
           </>
@@ -126,22 +126,23 @@ export default function PhotographerOnboardingPage() {
         {/* Step 3: Payment */}
         {step === 3 && (
           <>
-            <p className="text-sm text-gray-500 mb-1">
+            <p className="text-sm text-muted-foreground mb-1">
               Informe sua chave Pix para receber seus pagamentos.
             </p>
             <Field label="Chave Pix" placeholder="CPF, e-mail ou chave aleatória" value={form.pix} onChange={(v) => update('pix', v)} />
-            <div className="bg-[#e8f5e9] rounded-xl p-3 text-xs text-[#2D6A2D]">
+            {/* Info — surface-container-high tonal block, no border */}
+            <div className="bg-muted rounded-xl p-3 text-xs text-muted-foreground">
               💡 Você receberá 70% de cada venda. Os pagamentos são processados toda sexta-feira.
             </div>
           </>
         )}
       </div>
 
-      {/* Bottom button */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-4 max-w-lg mx-auto">
+      {/* Bottom button — no border on bar, gradient CTA */}
+      <div className="fixed bottom-0 left-0 right-0 bg-card shadow-ambient-up px-4 py-4 max-w-lg mx-auto">
         <button
           onClick={next}
-          className="flex items-center justify-center gap-2 w-full bg-[#2D6A2D] text-white font-bold py-4 rounded-2xl text-base"
+          className="flex items-center justify-center gap-2 w-full btn-primary font-bold py-4 text-base"
         >
           {step < steps.length - 1 ? (
             <>
@@ -151,7 +152,7 @@ export default function PhotographerOnboardingPage() {
             'Começar a vender!'
           )}
         </button>
-        <p className="text-center text-xs text-gray-400 mt-2">
+        <p className="text-center text-xs text-muted-foreground/70 mt-2">
           Você pode editar essas informações depois
         </p>
       </div>
@@ -174,13 +175,14 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>
+      <label className="block text-sm font-semibold text-foreground mb-1.5">{label}</label>
+      {/* Input — surface-container-high bg, no border, ghost border on focus */}
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-3 text-sm text-gray-700 outline-none placeholder:text-gray-400 focus:border-[#2D6A2D]"
+        className="w-full bg-[#e7e8e9] rounded-xl px-3 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/40 transition-shadow"
       />
     </div>
   )

@@ -53,53 +53,73 @@
 :root {
   --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
   --font-size: 16px;
-  --background: #ffffff;
-  --foreground: #111827;
-  --card: #ffffff;
-  --card-foreground: #111827;
+
+  /* ── Surface Hierarchy — Technical Minimalism ───────────────── */
+  --background: #f8f9fa;             /* surface — base layer */
+  --foreground: #191c1d;             /* on-surface — never pure black */
+
+  --card: #ffffff;                   /* surface-container-lowest */
+  --card-foreground: #191c1d;
+
   --popover: #ffffff;
-  --popover-foreground: #111827;
-  --primary: #2D6A2D;
+  --popover-foreground: #191c1d;
+
+  /* ── Brand Colors ───────────────────────────────────────────── */
+  --primary: #00677d;                /* precision teal */
+  --primary-container: #00b4d8;      /* gradient end — liquid metal */
   --primary-foreground: #ffffff;
-  --primary-dark: #1a4a1a;
-  --primary-light: #e8f5e9;
-  --secondary: #f3f4f6;
-  --secondary-foreground: #111827;
-  --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
-  --accent: #e8f5e9;
-  --accent-foreground: #2D6A2D;
+
+  --secondary: #edeeef;              /* surface-container — secondary btns */
+  --secondary-foreground: #191c1d;
+
+  --muted: #f3f4f5;                  /* surface-container-low */
+  --muted-foreground: #3d494d;       /* on-surface-variant */
+
+  --accent: #e1e3e4;                 /* surface-container-highest */
+  --accent-foreground: #00677d;
+
   --destructive: #d4183d;
   --destructive-foreground: #ffffff;
-  --border: #e5e7eb;
+
+  --border: #bcc9ce;                 /* outline-variant — ghost border at 15% */
   --input: transparent;
-  --input-background: #f9fafb;
-  --switch-background: #cbced4;
+  --input-background: #e7e8e9;       /* surface-container-high */
+  --switch-background: #bcc9ce;
+
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #2D6A2D;
-  --chart-1: #2D6A2D;
-  --chart-2: #4CAF50;
-  --chart-3: #81C784;
-  --chart-4: #C8E6C9;
-  --chart-5: #1B5E20;
+
+  --ring: #00677d;
+
+  /* ── Charts — Teal/Cyan precision palette ───────────────────── */
+  --chart-1: #00677d;
+  --chart-2: #00b4d8;
+  --chart-3: #4c616c;
+  --chart-4: #bcc9ce;
+  --chart-5: #e1e3e4;
+
   --radius: 0.75rem;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #111827;
-  --sidebar-primary: #2D6A2D;
+
+  /* ── Sidebar ────────────────────────────────────────────────── */
+  --sidebar: #f8f9fa;
+  --sidebar-foreground: #191c1d;
+  --sidebar-primary: #00677d;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e8f5e9;
-  --sidebar-accent-foreground: #2D6A2D;
-  --sidebar-border: #e5e7eb;
-  --sidebar-ring: #2D6A2D;
-  /* SportClick green palette */
-  --green-50: #e8f5e9;
-  --green-100: #c8e6c9;
-  --green-200: #a5d6a7;
-  --green-500: #4CAF50;
-  --green-600: #2D6A2D;
-  --green-700: #1B5E20;
-  --green-800: #1a4a1a;
+  --sidebar-accent: #e1e3e4;
+  --sidebar-accent-foreground: #00677d;
+  --sidebar-border: rgba(188, 201, 206, 0.15);
+  --sidebar-ring: #00677d;
+
+  /* ── Surface palette reference ──────────────────────────────── */
+  --surface: #f8f9fa;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f3f4f5;
+  --surface-container: #edeeef;
+  --surface-container-high: #e7e8e9;
+  --surface-container-highest: #e1e3e4;
+  --on-surface: #191c1d;
+  --on-surface-variant: #3d494d;
+  --outline-variant: #bcc9ce;
 }
 
 .dark {
@@ -141,7 +161,9 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply outline-ring/50;
+    /* No-Line Rule: borders must be defined via background shifts, not solid lines.
+       Ghost borders (#bcc9ce at 15% opacity) are the only allowed fallback. */
   }
   body {
     @apply bg-background text-foreground;
@@ -150,11 +172,106 @@
     @apply font-sans;
     font-size: var(--font-size);
   }
-  h1 { font-size: var(--text-2xl); font-weight: var(--font-weight-medium); line-height: 1.5; }
-  h2 { font-size: var(--text-xl); font-weight: var(--font-weight-medium); line-height: 1.5; }
+
+  /* Typography — Technical Minimalism */
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+    letter-spacing: -0.02em; /* Display: editorial headline feel */
+  }
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+    letter-spacing: -0.02em;
+  }
   h3 { font-size: var(--text-lg); font-weight: var(--font-weight-medium); line-height: 1.5; }
   h4 { font-size: var(--text-base); font-weight: var(--font-weight-medium); line-height: 1.5; }
   label { font-size: var(--text-base); font-weight: var(--font-weight-medium); line-height: 1.5; }
   button { font-size: var(--text-base); font-weight: var(--font-weight-medium); line-height: 1.5; }
   input { font-size: var(--text-base); font-weight: var(--font-weight-normal); line-height: 1.5; }
+}
+
+@layer utilities {
+  /* Primary CTA — liquid metal gradient (primary → primary-container) */
+  .btn-primary {
+    background: linear-gradient(135deg, #00677d 0%, #00b4d8 100%);
+    color: #ffffff;
+    border-radius: 9999px;
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #005769 0%, #009ab8 100%);
+  }
+  .btn-primary:disabled {
+    background: #e7e8e9;
+    color: #3d494d;
+    cursor: not-allowed;
+  }
+
+  /* Secondary button — surface-container, no border */
+  .btn-secondary {
+    background: #edeeef;
+    color: #191c1d;
+    border-radius: var(--radius-md);
+  }
+
+  /* Ghost border fallback — outline-variant at 15% opacity */
+  .border-ghost {
+    border: 1px solid rgba(188, 201, 206, 0.15);
+  }
+
+  /* Glassmorphism — floating controls & overlay panels */
+  .glass {
+    background: rgba(248, 249, 250, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+
+  /* Liquid Glass — header/overlay: blur only, NO bottom shadow (prevents scroll line) */
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.52);
+    backdrop-filter: blur(40px) saturate(160%);
+    -webkit-backdrop-filter: blur(40px) saturate(160%);
+    box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.80);
+  }
+
+  /* Liquid Glass Float — search bars, buttons, cards that sit above the background */
+  .liquid-glass-float {
+    background: rgba(255, 255, 255, 0.68);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    box-shadow:
+      inset 0 0.5px 0 rgba(255, 255, 255, 0.95),
+      inset 0 0 0 0.5px rgba(255, 255, 255, 0.30),
+      0 4px 16px rgba(25, 28, 29, 0.07),
+      0 1px 3px rgba(25, 28, 29, 0.04);
+  }
+
+  /* Liquid Glass Nav — bottom navigation with rounded top */
+  .liquid-glass-nav {
+    background: rgba(250, 251, 252, 0.72);
+    backdrop-filter: blur(48px) saturate(180%);
+    -webkit-backdrop-filter: blur(48px) saturate(180%);
+    box-shadow:
+      inset 0 0.5px 0 rgba(255, 255, 255, 0.95),
+      0 -1px 0 rgba(188, 201, 206, 0.08),
+      0 -8px 32px rgba(25, 28, 29, 0.05);
+  }
+
+  /* Label instrumentation style — telemetry & micro-copy */
+  .label-instrument {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.6875rem;
+    font-weight: 500;
+  }
+
+  /* Ambient shadow — floating elements only */
+  .shadow-ambient {
+    box-shadow: 0 8px 48px rgba(25, 28, 29, 0.06);
+  }
+  .shadow-ambient-up {
+    box-shadow: 0 -4px 40px rgba(25, 28, 29, 0.05);
+  }
 }

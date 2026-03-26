@@ -47,8 +47,8 @@ export default function OnboardingPage() {
   const isLast = current === slides.length - 1
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 p-4">
-      <div className="w-full max-w-sm bg-white rounded-3xl overflow-hidden shadow-2xl">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#191c1d] p-4">
+      <div className="w-full max-w-sm bg-card rounded-3xl overflow-hidden shadow-ambient">
         {/* Hero image */}
         <div className="relative h-64 overflow-hidden">
           <img
@@ -56,10 +56,10 @@ export default function OnboardingPage() {
             alt={slide.title}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/30" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-card/30" />
           <button
             onClick={skip}
-            className="absolute top-4 right-4 bg-black/40 text-white text-sm font-medium px-4 py-1.5 rounded-full backdrop-blur-sm"
+            className="absolute top-4 right-4 glass text-foreground text-sm font-medium px-4 py-1.5 rounded-full"
           >
             Pular
           </button>
@@ -68,29 +68,30 @@ export default function OnboardingPage() {
         {/* Content */}
         <div className="px-6 pt-5 pb-6">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-9 h-9 rounded-xl bg-[#e8f5e9] flex items-center justify-center">
-              <Icon size={18} className="text-[#2D6A2D]" />
+            <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center">
+              <Icon size={18} className="text-accent-foreground" />
             </div>
-            <span className="text-sm font-semibold text-[#2D6A2D]">
+            <span className="text-sm font-semibold text-muted-foreground label-instrument">
               {current + 1} / {slides.length}
             </span>
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 mb-2 leading-tight">
+          <h1 className="text-2xl font-bold text-foreground mb-2 leading-tight">
             {slide.title}
           </h1>
 
-          <p className="text-sm text-gray-500 leading-relaxed mb-6">
+          <p className="text-sm text-muted-foreground leading-relaxed mb-6">
             {slide.description}
           </p>
 
+          {/* Progress dots */}
           <div className="flex gap-1.5 mb-6">
             {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrent(i)}
                 className={`h-2 rounded-full transition-all ${
-                  i === current ? 'w-6 bg-[#2D6A2D]' : 'w-2 bg-gray-200'
+                  i === current ? 'w-6 bg-primary' : 'w-2 bg-accent'
                 }`}
               />
             ))}
@@ -100,13 +101,14 @@ export default function OnboardingPage() {
             <div className="space-y-3">
               <Link
                 href="/explore"
-                className="flex items-center justify-center gap-2 w-full bg-[#2D6A2D] text-white font-semibold py-4 rounded-2xl text-base"
+                className="flex items-center justify-center gap-2 w-full btn-primary font-semibold py-4 text-base"
               >
                 Explorar fotos <ChevronRight size={18} />
               </Link>
+              {/* Secondary — surface-container bg, no border */}
               <Link
                 href="/login"
-                className="flex items-center justify-center w-full border-2 border-[#2D6A2D] text-[#2D6A2D] font-semibold py-4 rounded-2xl text-base"
+                className="flex items-center justify-center w-full bg-secondary text-secondary-foreground font-semibold py-4 rounded-full text-base"
               >
                 Entrar / Criar conta
               </Link>
@@ -114,7 +116,7 @@ export default function OnboardingPage() {
           ) : (
             <button
               onClick={next}
-              className="flex items-center justify-center gap-2 w-full bg-[#2D6A2D] text-white font-semibold py-4 rounded-2xl text-base"
+              className="flex items-center justify-center gap-2 w-full btn-primary font-semibold py-4 text-base"
             >
               Próximo <ChevronRight size={18} />
             </button>

@@ -30,12 +30,14 @@ export const Primary: Story = {
   args: {
     primary: true,
     label: 'Button',
+    backgroundColor: "#2D6A2D"
   },
 };
 
 export const Secondary: Story = {
   args: {
     label: 'Button',
+    backgroundColor: "#ffff"
   },
 };
 

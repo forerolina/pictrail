@@ -3,13 +3,20 @@
 import 'leaflet/dist/leaflet.css'
 import { useEffect, useRef, useState } from 'react'
 
+// Brand palette — Technical Minimalism
+const BRAND = {
+  primary: '#00677d',
+  primaryContainer: '#00b4d8',
+  secondary: '#4c616c',
+  onSurface: '#191c1d',
+}
+
 // Waypoints for each route — placed on actual Porto Alegre roads.
 // OSRM will snap these to the road network and return full geometry.
 const ROUTES = {
   orla: {
     name: 'Orla do Guaíba',
-    color: '#4F46E5',
-    // Av. Edvaldo Pereira Paiva / Orla do Guaíba waterfront avenue
+    color: BRAND.primary,              // teal
     waypoints: [
       [-30.0215, -51.2244], // Ponte do Gasômetro (north)
       [-30.0290, -51.2295],
@@ -18,15 +25,14 @@ const ROUTES = {
       [-30.0540, -51.2393], // Cristal (south)
     ] as [number, number][],
     photographers: [
-      { id: 'p1', lat: -30.0420, lng: -51.2368, name: 'Carlos M.', photos: 47, color: '#2D6A2D' },
-      { id: 'p2', lat: -30.0355, lng: -51.2340, name: 'Ana Lima',  photos: 23, color: '#7C3AED' },
-      { id: 'p3', lat: -30.0280, lng: -51.2290, name: 'Bruno C.',  photos: 15, color: '#DC2626' },
+      { id: 'p1', lat: -30.0420, lng: -51.2368, name: 'Carlos M.', photos: 47, color: BRAND.primary },
+      { id: 'p2', lat: -30.0355, lng: -51.2340, name: 'Ana Lima',  photos: 23, color: BRAND.primaryContainer },
+      { id: 'p3', lat: -30.0280, lng: -51.2290, name: 'Bruno C.',  photos: 15, color: BRAND.secondary },
     ],
   },
   farroupilha: {
     name: 'Parque Farroupilha',
-    color: '#059669',
-    // Perimeter of Parque Farroupilha (Redenção) in the city centre
+    color: BRAND.primaryContainer,     // cyan
     waypoints: [
       [-30.0295, -51.2175], // NE corner (Av. Osvaldo Aranha)
       [-30.0320, -51.2130],
@@ -36,14 +42,13 @@ const ROUTES = {
       [-30.0330, -51.2185],
     ] as [number, number][],
     photographers: [
-      { id: 'p4', lat: -30.0330, lng: -51.2148, name: 'Marcos R.', photos: 38, color: '#2D6A2D' },
-      { id: 'p5', lat: -30.0355, lng: -51.2112, name: 'Julia F.',  photos: 19, color: '#7C3AED' },
+      { id: 'p4', lat: -30.0330, lng: -51.2148, name: 'Marcos R.', photos: 38, color: BRAND.primary },
+      { id: 'p5', lat: -30.0355, lng: -51.2112, name: 'Julia F.',  photos: 19, color: BRAND.secondary },
     ],
   },
   bento: {
     name: 'Bento Gonçalves Norte',
-    color: '#D97706',
-    // Av. Bento Gonçalves heading NW toward UFRGS campus
+    color: BRAND.secondary,            // blue-grey
     waypoints: [
       [-30.0385, -51.2115], // start near city centre
       [-30.0330, -51.2045],
@@ -52,7 +57,7 @@ const ROUTES = {
       [-30.0155, -51.1845], // near UFRGS
     ] as [number, number][],
     photographers: [
-      { id: 'p6', lat: -30.0270, lng: -51.1980, name: 'Pedro L.', photos: 31, color: '#2D6A2D' },
+      { id: 'p6', lat: -30.0270, lng: -51.1980, name: 'Pedro L.', photos: 31, color: BRAND.primary },
     ],
   },
 }
@@ -135,8 +140,7 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
       setReady(true)
     }
 
-    // Gate init until the container has non-zero dimensions so Leaflet
-    // measures the correct size and places tiles at the right pixel origin.
+    // Gate init until the container has non-zero dimensions
     const ro = new ResizeObserver(() => {
       if (container.clientHeight > 0 && !mapInstanceRef.current) {
         ro.disconnect()
@@ -173,7 +177,7 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
       layersRef.current.forEach((l) => map.removeLayer(l))
       layersRef.current = []
 
-      // ── Fetch road-following geometry for all routes concurrently ──────────
+      // ── Fetch road-following geometry ──────────────────────────────────────
       const [activeGeom, ...dimmedGeoms] = await Promise.all([
         fetchRoadGeometry(activeRouteId, route.waypoints),
         ...Object.entries(ROUTES)
@@ -181,15 +185,15 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
           .map(([id, r]) => fetchRoadGeometry(id, r.waypoints)),
       ])
 
-      // Draw inactive routes dimmed
+      // Draw inactive routes dimmed — outline-variant tonal
       dimmedGeoms.forEach((geom) => {
-        const line = L.polyline(geom, { color: '#CBD5E1', weight: 4, opacity: 0.5 }).addTo(map)
+        const line = L.polyline(geom, { color: '#bcc9ce', weight: 4, opacity: 0.5 }).addTo(map)
         layersRef.current.push(line)
       })
 
-      // Draw active route — Waze-style shadow + colour
+      // Draw active route — Waze-style shadow + brand colour
       const shadow = L.polyline(activeGeom, {
-        color: 'rgba(0,0,0,0.15)',
+        color: 'rgba(25,28,29,0.12)',
         weight: 12,
         opacity: 1,
       }).addTo(map)
@@ -204,16 +208,16 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
 
       layersRef.current.push(shadow, mainLine)
 
-      // ── User location arrow ─────────────────────────────────────────────────
+      // ── User location arrow — primary teal ──────────────────────────────────
       const userPos = activeGeom[Math.floor(activeGeom.length / 2)]
       const userIcon = L.divIcon({
         html: `<div style="
           width:36px;height:36px;
-          background:#4F46E5;
+          background:${BRAND.primary};
           border:3px solid white;
           border-radius:50% 50% 50% 0;
           transform:rotate(-45deg);
-          box-shadow:0 2px 8px rgba(0,0,0,0.3);
+          box-shadow:0 4px 16px rgba(0,103,125,0.35);
         "><div style="
           transform:rotate(45deg);
           width:100%;height:100%;
@@ -226,7 +230,7 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
       })
       layersRef.current.push(L.marker(userPos, { icon: userIcon }).addTo(map))
 
-      // ── Photographer markers ────────────────────────────────────────────────
+      // ── Photographer markers — brand palette ────────────────────────────────
       route.photographers.forEach((p) => {
         const icon = L.divIcon({
           html: `<div style="position:relative;width:40px;height:40px;">
@@ -236,7 +240,7 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
               border:2.5px solid white;
               border-radius:50%;
               display:flex;align-items:center;justify-content:center;
-              box-shadow:0 2px 6px rgba(0,0,0,0.25);
+              box-shadow:0 4px 16px rgba(0,103,125,0.30);
               cursor:pointer;
               font-size:16px;
             ">📷</div>
@@ -249,7 +253,6 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
               padding:1px 5px;
               border-radius:8px;
               white-space:nowrap;
-              border:1.5px solid white;
             ">${p.photos}</div>
           </div>`,
           iconSize: [40, 50],
@@ -279,14 +282,24 @@ export default function ExploreMap({ activeRouteId, onPhotographerClick }: Props
     <div style={{ position: 'absolute', inset: 0 }}>
       <style>{`
         .leaflet-container { width:100%!important; height:100%!important; font-family:'Inter',sans-serif; }
-        .photographer-tooltip { background:white; border:none; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15); padding:4px 8px; font-size:12px; }
+        .photographer-tooltip {
+          background: rgba(248,249,250,0.92);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: none !important;
+          border-radius: 10px;
+          box-shadow: 0 4px 24px rgba(25,28,29,0.08);
+          padding: 4px 8px;
+          font-size: 12px;
+          color: #191c1d;
+        }
         .photographer-tooltip::before { display:none; }
-        .leaflet-control-attribution { font-size:9px!important; background:rgba(255,255,255,0.6)!important; }
+        .leaflet-control-attribution { font-size:9px!important; background:rgba(248,249,250,0.7)!important; backdrop-filter:blur(8px)!important; }
       `}</style>
       <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
       {!ready && (
-        <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-[#4F46E5] border-t-transparent rounded-full animate-spin" />
+        <div className="absolute inset-0 bg-muted flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       )}
     </div>

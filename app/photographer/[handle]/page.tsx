@@ -39,9 +39,9 @@ const PHOTOGRAPHERS: Record<string, {
     reviewCount: 312,
     totalSales: 1840,
     recentBuyers: 8,
-    speciality: 'Ciclismo & Triathlon',
+    speciality: 'Moto Esportiva & Naked',
     badge: 'Top vendedor',
-    bio: 'Fotógrafo especializado em esportes de resistência. Atua na Orla do Guaíba e rotas da Serra há mais de 5 anos.',
+    bio: 'Fotógrafo especializado em motos esportivas e naked. Atua na Orla do Guaíba e rotas da Serra há mais de 5 anos.',
   },
   'ana-lima': {
     name: 'Ana Lima',
@@ -52,9 +52,9 @@ const PHOTOGRAPHERS: Record<string, {
     reviewCount: 187,
     totalSales: 940,
     recentBuyers: 5,
-    speciality: 'Corrida & Moto',
+    speciality: 'Adventure & Trail',
     badge: null,
-    bio: 'Capturando o movimento perfeito em cada pedal e acelerada desde 2020.',
+    bio: 'Capturando o movimento perfeito em cada curva e acelerada desde 2020.',
   },
   'bruno-costa': {
     name: 'Bruno Costa',
@@ -78,9 +78,9 @@ const PHOTOGRAPHERS: Record<string, {
     reviewCount: 256,
     totalSales: 1520,
     recentBuyers: 11,
-    speciality: 'Ciclismo urbano',
+    speciality: 'Naked & Custom',
     badge: 'Top vendedor',
-    bio: 'Registrando o ciclismo urbano porto-alegrense com identidade e arte.',
+    bio: 'Registrando as motos porto-alegrenses com identidade e arte nas rotas da cidade.',
   },
   'julia-faria': {
     name: 'Julia Faria',
@@ -91,9 +91,9 @@ const PHOTOGRAPHERS: Record<string, {
     reviewCount: 143,
     totalSales: 670,
     recentBuyers: 4,
-    speciality: 'Corrida & Ciclismo',
+    speciality: 'Custom & Touring',
     badge: null,
-    bio: 'Corredora e fotógrafa. Entendo o atleta porque também sou uma.',
+    bio: 'Motociclista e fotógrafa. Entendo o piloto porque também sou uma.',
   },
   'pedro-luz': {
     name: 'Pedro Luz',
@@ -104,9 +104,9 @@ const PHOTOGRAPHERS: Record<string, {
     reviewCount: 78,
     totalSales: 310,
     recentBuyers: 2,
-    speciality: 'MTB & Trilha',
+    speciality: 'Enduro & Off-road',
     badge: null,
-    bio: 'Nas trilhas de Bento Gonçalves e arredores capturando MTB e aventura.',
+    bio: 'Nas estradas de Bento Gonçalves e arredores capturando motos adventure e enduro.',
   },
 }
 
@@ -204,40 +204,41 @@ export default function PhotographerProfilePage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-background">
 
       {/* ── Hero / Profile header ─────────────────────────────────────────── */}
-      <div className="bg-white px-4 pt-12 pb-4">
+      <div className="bg-card px-4 pt-12 pb-4">
         {/* Back */}
         <button
+          type="button"
           onClick={() => router.back()}
-          className="flex items-center gap-1 text-gray-500 text-sm mb-4"
+          className="flex items-center gap-1 text-muted-foreground text-sm mb-4 min-h-[44px]"
         >
-          <ChevronLeft size={16} /> Voltar
+          <ChevronLeft size={16} aria-hidden="true" /> Voltar
         </button>
 
         {/* Avatar + name row */}
         <div className="flex items-start gap-3 mb-3">
           <div className="relative">
-            <Avatar className="h-20 w-20 border-2 border-white shadow-md">
+            <Avatar className="h-20 w-20 border-2 border-card shadow-ambient">
               <AvatarImage src={photographer.avatar} alt={photographer.name} />
-              <AvatarFallback className="bg-indigo-100 text-indigo-700 font-bold text-2xl">
+              <AvatarFallback className="bg-accent text-accent-foreground font-bold text-2xl">
                 {photographer.initials}
               </AvatarFallback>
             </Avatar>
-            <span className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white" />
+            <span className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-primary border-2 border-card" />
           </div>
 
           <div className="flex-1 min-w-0 pt-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg font-extrabold text-gray-900 leading-tight">{photographer.name}</h1>
+              <h1 className="text-lg font-extrabold text-foreground leading-tight">{photographer.name}</h1>
               {photographer.badge && (
-                <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold bg-accent text-accent-foreground px-2 py-0.5 rounded-full">
                   ⭐ {photographer.badge}
                 </span>
               )}
             </div>
-            <p className="text-xs text-gray-500 mt-0.5">{photographer.speciality}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{photographer.speciality}</p>
 
             {/* Stars */}
             <div className="flex items-center gap-1 mt-1">
@@ -246,62 +247,62 @@ export default function PhotographerProfilePage() {
                   <Star
                     key={s}
                     size={11}
-                    className={s <= Math.round(photographer.rating) ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200'}
+                    className={s <= Math.round(photographer.rating) ? 'text-primary fill-primary' : 'text-muted fill-muted'}
                   />
                 ))}
               </div>
-              <span className="text-xs font-semibold text-gray-700">{photographer.rating}</span>
-              <span className="text-xs text-gray-400">({photographer.reviewCount} avaliações)</span>
+              <span className="text-xs font-semibold text-foreground">{photographer.rating}</span>
+              <span className="text-xs text-muted-foreground">({photographer.reviewCount} avaliações)</span>
             </div>
           </div>
         </div>
 
         {/* Bio */}
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">{photographer.bio}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">{photographer.bio}</p>
 
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-2 mb-3">
-          <div className="bg-gray-50 rounded-xl py-2.5 text-center">
-            <p className="text-base font-extrabold text-gray-900">{photographer.totalSales.toLocaleString('pt-BR')}</p>
-            <p className="text-[10px] text-gray-500 flex items-center justify-center gap-0.5 mt-0.5">
-              <Camera size={9} /> fotos vendidas
+          <div className="bg-muted rounded-xl py-2.5 text-center">
+            <p className="text-base font-extrabold text-foreground">{photographer.totalSales.toLocaleString('pt-BR')}</p>
+            <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-0.5 mt-0.5">
+              <Camera size={9} aria-hidden="true" /> fotos vendidas
             </p>
           </div>
-          <div className="bg-gray-50 rounded-xl py-2.5 text-center">
-            <p className="text-base font-extrabold text-gray-900">{gallery.length}</p>
-            <p className="text-[10px] text-gray-500 mt-0.5">fotos disponíveis</p>
+          <div className="bg-muted rounded-xl py-2.5 text-center">
+            <p className="text-base font-extrabold text-foreground">{gallery.length}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">fotos disponíveis</p>
           </div>
-          <div className="bg-gray-50 rounded-xl py-2.5 text-center">
-            <p className="text-base font-extrabold text-gray-900">{photographer.reviewCount}</p>
-            <p className="text-[10px] text-gray-500 mt-0.5">avaliações</p>
+          <div className="bg-muted rounded-xl py-2.5 text-center">
+            <p className="text-base font-extrabold text-foreground">{photographer.reviewCount}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">avaliações</p>
           </div>
         </div>
 
         {/* Social proof */}
-        <div className="flex items-center gap-2 text-xs text-gray-600 bg-orange-50 rounded-xl px-3 py-2">
-          <Flame size={13} className="text-orange-500 flex-none" />
+        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-accent rounded-xl px-3 py-2">
+          <Flame size={13} className="text-primary flex-none" aria-hidden="true" />
           <span>
-            <strong className="text-orange-600">{photographer.recentBuyers} pessoas</strong> compraram fotos no último mês
+            <strong className="text-primary">{photographer.recentBuyers} pessoas</strong> compraram fotos no último mês
           </span>
         </div>
       </div>
 
       {/* ── Search & upload ───────────────────────────────────────────────── */}
-      <div className="bg-white px-4 pt-3 pb-3 mt-2 sticky top-0 z-10 shadow-sm">
-        {/* Search bar */}
-        <div className="flex gap-2 mb-2">
-          <div className="flex-1 flex items-center gap-2 bg-gray-100 rounded-xl px-3 py-2.5">
-            <Search size={15} className="text-gray-400 flex-none" />
+      <div className="px-4 pt-3 pb-3 mt-2 liquid-glass sticky top-0 z-10">
+        {/* Row: search bar + image upload */}
+        <div className="flex gap-2 h-[44px]">
+          <div className="flex-1 flex items-center gap-2 liquid-glass-float rounded-2xl px-3">
+            <Search size={15} className="text-muted-foreground/60 flex-none" aria-hidden="true" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por rota, data, período..."
-              className="flex-1 bg-transparent text-sm outline-none text-gray-700 placeholder:text-gray-400 min-w-0"
+              className="flex-1 bg-transparent text-sm outline-none text-foreground placeholder:text-muted-foreground/60 min-w-0"
             />
             {search && (
-              <button onClick={() => setSearch('')}>
-                <X size={14} className="text-gray-400" />
+              <button type="button" onClick={() => setSearch('')} aria-label="Limpar busca">
+                <X size={14} className="text-muted-foreground/60" aria-hidden="true" />
               </button>
             )}
           </div>
@@ -315,25 +316,26 @@ export default function PhotographerProfilePage() {
             onChange={handleImageUpload}
           />
           <button
+            type="button"
+            aria-label={uploadedImage ? 'Imagem ativa — clique para alterar' : 'Buscar por imagem do veículo'}
             onClick={() => fileInputRef.current?.click()}
-            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-none border transition-colors ${
+            className={`w-[44px] h-[44px] rounded-2xl flex items-center justify-center flex-none transition-colors ${
               uploadedImage
-                ? 'bg-[#4F46E5] border-[#4F46E5] text-white'
-                : 'bg-white border-gray-200 text-gray-500'
+                ? 'bg-primary text-primary-foreground'
+                : 'liquid-glass-float text-muted-foreground'
             }`}
-            title="Buscar por imagem do veículo"
           >
-            <ImagePlus size={16} />
+            <ImagePlus size={16} aria-hidden="true" />
           </button>
         </div>
 
         {/* Uploaded image hint */}
         {uploadedImage && (
-          <div className="flex items-center gap-2 bg-indigo-50 rounded-xl px-3 py-2">
-            <img src={uploadedImage} alt="Seu veículo" className="w-8 h-8 rounded-lg object-cover border border-indigo-200" />
-            <p className="flex-1 text-xs font-medium text-indigo-700">Filtrando por veículo similar</p>
-            <button onClick={() => setUploadedImage(null)} className="text-indigo-400">
-              <X size={13} />
+          <div className="flex items-center gap-2 bg-accent rounded-xl px-3 py-2 mt-2">
+            <img src={uploadedImage} alt="Seu veículo" className="w-8 h-8 rounded-lg object-cover" />
+            <p className="flex-1 text-xs font-medium text-accent-foreground">Filtrando por veículo similar</p>
+            <button type="button" onClick={() => setUploadedImage(null)} aria-label="Remover filtro de imagem" className="text-muted-foreground">
+              <X size={13} aria-hidden="true" />
             </button>
           </div>
         )}
@@ -344,10 +346,10 @@ export default function PhotographerProfilePage() {
         <div className="fixed bottom-20 left-0 right-0 z-50 px-4">
           <Link
             href={`/purchase-confirm?photographer=${handle}&ids=${[...cart].join(',')}`}
-            className="flex items-center justify-between bg-[#4F46E5] text-white rounded-2xl px-4 py-3 shadow-xl"
+            className="btn-primary flex items-center justify-between rounded-2xl px-4 py-3 shadow-ambient"
           >
             <div className="flex items-center gap-2">
-              <ShoppingCart size={18} />
+              <ShoppingCart size={18} aria-hidden="true" />
               <span className="font-bold text-sm">{cart.size} foto{cart.size > 1 ? 's' : ''} selecionada{cart.size > 1 ? 's' : ''}</span>
             </div>
             <span className="font-bold text-sm">Comprar →</span>
@@ -360,7 +362,7 @@ export default function PhotographerProfilePage() {
         {filtered.length === 0 ? (
           <div className="col-span-2 flex flex-col items-center justify-center py-20 text-center">
             <p className="text-4xl mb-3">📷</p>
-            <p className="text-gray-500 text-sm font-medium">Nenhuma foto encontrada</p>
+            <p className="text-muted-foreground text-sm font-medium">Nenhuma foto encontrada</p>
           </div>
         ) : (
           filtered.map((photo) => {
@@ -368,7 +370,7 @@ export default function PhotographerProfilePage() {
             const isPurchased = purchased.has(photo.id)
 
             return (
-              <div key={photo.id} className="rounded-2xl overflow-hidden bg-white shadow-sm border border-gray-100">
+              <div key={photo.id} className="rounded-2xl overflow-hidden bg-card shadow-ambient">
                 {/* Photo with watermark */}
                 <div className="relative">
                   <img
@@ -385,14 +387,14 @@ export default function PhotographerProfilePage() {
                     </div>
                   )}
                   {/* Period badge */}
-                  <div className="absolute top-2 left-2 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                  <div className="absolute top-2 left-2 glass text-foreground text-[10px] px-1.5 py-0.5 rounded-full">
                     {photo.period === 'Manhã' ? '🌅' : photo.period === 'Tarde' ? '☀️' : '🌙'} {photo.period}
                   </div>
                   {/* Purchased overlay */}
                   {isPurchased && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/10">
-                      <div className="bg-green-500 rounded-full p-2 shadow-lg">
-                        <Check size={20} className="text-white" />
+                      <div className="bg-primary rounded-full p-2 shadow-ambient">
+                        <Check size={20} className="text-primary-foreground" aria-hidden="true" />
                       </div>
                     </div>
                   )}
@@ -400,28 +402,31 @@ export default function PhotographerProfilePage() {
 
                 {/* Footer */}
                 <div className="px-2.5 py-2">
-                  <p className="text-[11px] text-gray-500 truncate mb-1">📍 {photo.route} · {photo.date}</p>
+                  <p className="text-[11px] text-muted-foreground truncate mb-1">📍 {photo.route} · {photo.date}</p>
                   {isPurchased ? (
-                    <div className="flex items-center gap-1 text-green-600 text-xs font-semibold">
-                      <Check size={12} /> Comprada
+                    <div className="flex items-center gap-1 text-primary text-xs font-semibold">
+                      <Check size={12} aria-hidden="true" /> Comprada
                     </div>
                   ) : (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-gray-900">{photo.price}</span>
+                      <span className="text-sm font-bold text-foreground">{photo.price}</span>
                       <div className="flex items-center gap-1">
                         <button
+                          type="button"
+                          aria-label={inCart ? 'Remover do carrinho' : 'Adicionar ao carrinho'}
                           onClick={() => toggleCart(photo.id)}
-                          className={`p-1.5 rounded-lg transition-colors ${
+                          className={`w-[32px] h-[32px] rounded-lg flex items-center justify-center transition-colors ${
                             inCart
-                              ? 'bg-[#4F46E5] text-white'
-                              : 'bg-gray-100 text-gray-500'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted text-muted-foreground'
                           }`}
                         >
-                          <ShoppingCart size={13} />
+                          <ShoppingCart size={13} aria-hidden="true" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handlePurchase(photo.id)}
-                          className="bg-[#2D6A2D] text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg"
+                          className="btn-primary text-[11px] font-bold px-2.5 py-1.5"
                         >
                           Comprar
                         </button>
